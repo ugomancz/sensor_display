@@ -1,4 +1,3 @@
-//#include <stdio.h>
 #include <stdlib.h>
 #include "ti/devices/msp432e4/driverlib/driverlib.h"
 #include <ti/devices/msp432e4/driverlib/interrupt.h>
@@ -80,7 +79,6 @@ int main(void) {
     IntEnable(INT_UART6);
     UARTIntEnable(UART6_BASE, UART_INT_RX | UART_INT_TX);
     UARTTxIntModeSet(UART6_BASE, UART_TXINT_MODE_EOT);
-    //UARTLoopbackEnable(UART6_BASE);
 
     // Initialise GPIO pin.
     SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOH);
@@ -109,7 +107,6 @@ int main(void) {
     set_direction(TRANSMIT);
     if (!uart_send_frame(UART6_BASE, frame)) {
         // TODO: try here set_direction(RECEIVE);
-        //printf("Frame sent!\n");
     }
 
     while (1) {
