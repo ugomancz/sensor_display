@@ -11,8 +11,7 @@
 #include "globals.h"
 #include "modbus_test.h"
 
-volatile bool interchar_timeout = false;
-volatile bool interframe_timeout = false;
+volatile state current_state = SEND_MESSAGE;
 
 /* Incoming byte at UART6 interrupt handler. */
 void UART6_IRQHandler(void) {
@@ -29,35 +28,30 @@ void UART6_IRQHandler(void) {
             return;
         }
 
-    /*// Resetting the T35 (interframe) timer.
-    TimerDisable(TIMER1_BASE, TIMER_A);
-    TimerEnable(TIMER1_BASE, TIMER_A);
-
-    // Interchar delay checking.
-    if (!interchar_timeout) {
-        // Resets the T15 (interchar) timer.
-        TimerDisable(TIMER0_BASE, TIMER_A);
-        TimerEnable(TIMER0_BASE, TIMER_A);
-    }
-    else {
-        // TODO Interchar delay error routine, clear interchar flag, clear buffer.
+    if (current_state != MESSAGE_RECEIVED) {
+            // Resets the T15 (message_timeout) timer.
+            TimerDisable(TIMER0_BASE, TIMER_A);
+            // TimerEnable(TIMER0_BASE, TIMER_A);
+    } else if (current_state == MESSAGE_RECEIVED) {
+        // Should only occur in case of fault in transmission.
         return;
-    }*/
+    }
+
     while (UARTCharsAvail(UART6_BASE)) {
         buffer[buffer_position++] = UARTCharGet(UART6_BASE);
     }
 }
 
-/* The interrupt handler for the T15 timer interrupt. */
+/* The interrupt handler for the T15 (message received) timer interrupt. */
 void TIMER0A_IRQHandler(void) {
     TimerIntClear(TIMER0_BASE, TIMER_TIMA_TIMEOUT);
-    interchar_timeout = true;
+    current_state = MESSAGE_RECEIVED;
 }
 
-/* The interrupt handler for the T35 timer interrupt. */
+/* The interrupt handler for the periodic send message timer interrupt. */
 void TIMER1A_IRQHandler(void) {
     TimerIntClear(TIMER1_BASE, TIMER_TIMA_TIMEOUT);
-    interframe_timeout = true;
+    current_state = SEND_MESSAGE;
 }
 
 int main(void) {
@@ -84,8 +78,8 @@ int main(void) {
     UARTConfigSetExpClk(UART6_BASE, ui32SysClock, BAUD_RATE,
                         (UART_CONFIG_WLEN_8 | UART_CONFIG_STOP_ONE | UART_CONFIG_PAR_EVEN));
     IntEnable(INT_UART6);
-    UARTIntEnable(UART6_BASE, UART_INT_RX | UART_INT_RT | UART_INT_TX);
-    UARTTxIntModeSet(UART6_BASE, UART_TXINT_MODE_EOT);
+    UARTIntEnable(UART6_BASE, UART_INT_RX /*| UART_INT_TX*/);
+    //UARTTxIntModeSet(UART6_BASE, UART_TXINT_MODE_EOT);
     //UARTLoopbackEnable(UART6_BASE);
 
     // Initialise GPIO pin.
@@ -94,35 +88,42 @@ int main(void) {
     }
     GPIOPinTypeGPIOOutput(GPIO_PORTH_BASE, GPIO_PIN_4);
 
-    // Initialise T15 and T35 timers.
-    SysCtlPeripheralEnable(SYSCTL_PERIPH_TIMER0); // T15
+    // Initialise the T15 (message received) timer.
+    SysCtlPeripheralEnable(SYSCTL_PERIPH_TIMER0);
     TimerConfigure(TIMER0_BASE, TIMER_CFG_ONE_SHOT);
     TimerLoadSet(TIMER0_BASE, TIMER_A, T_15_CYCLES);
     IntEnable(INT_TIMER0A);
     TimerIntEnable(TIMER0_BASE, TIMER_TIMA_TIMEOUT);
+    // [test] TimerEnable(TIMER0_BASE, TIMER_A);
 
-    SysCtlPeripheralEnable(SYSCTL_PERIPH_TIMER1); // T35
-    TimerConfigure(TIMER1_BASE, TIMER_CFG_ONE_SHOT);
-    TimerLoadSet(TIMER1_BASE, TIMER_A, T_35_CYCLES);
+    SysCtlPeripheralEnable(SYSCTL_PERIPH_TIMER1);
+    TimerConfigure(TIMER1_BASE, TIMER_CFG_PERIODIC);
+    TimerLoadSet(TIMER1_BASE, TIMER_A, FREQ/2);
     IntEnable(INT_TIMER1A);
     TimerIntEnable(TIMER1_BASE, TIMER_TIMA_TIMEOUT);
+    // [test] TimerEnable(TIMER1_BASE, TIMER_A);
 
     // Test communication.
     uint8_t data[] = { 0x00, 0x00, 0x00, 0x05 };
     frame frame = create_frame(0x01, 0x04, data, 0x3009);
     set_direction(TRANSMIT);
     if (!uart_send_frame(UART6_BASE, frame)) {
+        // TODO: try here set_direction(RECEIVE);
         printf("Frame sent!\n");
     }
 
-    // [test] TimerEnable(TIMER0_BASE, TIMER_A);
-    // [test] TimerEnable(TIMER1_BASE, TIMER_A);
-
     while (1) {
-        if (interframe_timeout) { // complete message received
-            parse_incoming_message(buffer);
-            interchar_timeout = false;
-            interframe_timeout = false;
+        switch (current_state) {
+        case SEND_MESSAGE:
+            // TODO: send a message
+            // TODO: current_state = IDLE;
+            break;
+        case MESSAGE_RECEIVED:
+            // TODO: parse_incoming_message(buffer);
+            // TODO: current_state = IDLE;
+            break;
+        default:
+            continue;
         }
     }
 }

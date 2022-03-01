@@ -16,10 +16,10 @@
 
 #define FREQ 120000000
 #define BAUD_RATE 9600
-#define T_35 (3.5 * (11 * 1000000 / BAUD_RATE))
-#define T_35_CYCLES (T_35 * (FREQ / 1000000))
 #define T_15 (1.5 * (11 * 1000000 / BAUD_RATE))
 #define T_15_CYCLES (T_15 * (FREQ / 1000000))
+
+typedef enum _state {WAITING, SEND_MESSAGE, MESSAGE_RECEIVED} state;
 
 extern const Graphics_Display_Functions Kentec_fxns;
 extern Graphics_Display Kentec_GD;
