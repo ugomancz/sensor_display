@@ -19,7 +19,7 @@
 #define T_15 (1.5 * (11 * 1000000 / BAUD_RATE))
 #define T_15_CYCLES (T_15 * (FREQ / 1000000))
 
-typedef enum _state {WAITING, SEND_MESSAGE, MESSAGE_RECEIVED} state;
+typedef enum {WAITING, SEND_MESSAGE, MESSAGE_RECEIVED} state;
 
 extern const Graphics_Display_Functions Kentec_fxns;
 extern Graphics_Display Kentec_GD;
