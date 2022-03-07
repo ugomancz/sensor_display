@@ -15,6 +15,7 @@ volatile state current_state = SEND_MESSAGE;
 /* Incoming byte at UART6 interrupt handler. */
 void UART6_IRQHandler(void) {
     uint32_t ui32Status;
+    TimerDisable(TIMER0_BASE, TIMER_A);
 
     // Get the interrupt status.
     ui32Status = UARTIntStatus(UART6_BASE, true);
@@ -25,19 +26,22 @@ void UART6_IRQHandler(void) {
     if (ui32Status & UART_INT_TX) { // end-of-transmission interrupt
             set_direction(RECEIVE);
             return;
-        }
+    }
 
-    if (current_state != MESSAGE_RECEIVED) {
-            // Resets the T15 (message_timeout) timer.
-            TimerDisable(TIMER0_BASE, TIMER_A);
-            // TimerEnable(TIMER0_BASE, TIMER_A);
-    } else if (current_state == MESSAGE_RECEIVED) {
-        // Should only occur in case of fault in transmission.
-        return;
+    if (current_state == MESSAGE_RECEIVED) {
+            // Should only occur in case of fault in transmission.
+            return;
     }
 
     while (UARTCharsAvail(UART6_BASE)) {
         buffer[buffer_position++] = UARTCharGet(UART6_BASE);
+    }
+
+    if (current_state != MESSAGE_RECEIVED) {
+                // Resets the T15 (message_timeout) timer.
+                TimerDisable(TIMER0_BASE, TIMER_A);
+                TimerLoadSet(TIMER0_BASE, TIMER_A, T_15_CYCLES);
+                TimerEnable(TIMER0_BASE, TIMER_A);
     }
 }
 
@@ -77,8 +81,8 @@ int main(void) {
     UARTConfigSetExpClk(UART6_BASE, ui32SysClock, BAUD_RATE,
                         (UART_CONFIG_WLEN_8 | UART_CONFIG_STOP_ONE | UART_CONFIG_PAR_EVEN));
     IntEnable(INT_UART6);
-    UARTIntEnable(UART6_BASE, UART_INT_RX | UART_INT_RT | UART_INT_TX);
-    UARTFIFOLevelSet(UART6_BASE, UART_FIFO_TX4_8, UART_FIFO_RX1_8);
+    UARTIntEnable(UART6_BASE, UART_INT_RX | UART_INT_TX);
+    UARTFIFODisable(UART6_BASE);
     UARTTxIntModeSet(UART6_BASE, UART_TXINT_MODE_EOT);
 
     // Initialise GPIO pin.
@@ -93,7 +97,6 @@ int main(void) {
     TimerLoadSet(TIMER0_BASE, TIMER_A, T_15_CYCLES);
     IntEnable(INT_TIMER0A);
     TimerIntEnable(TIMER0_BASE, TIMER_TIMA_TIMEOUT);
-    // [test] TimerEnable(TIMER0_BASE, TIMER_A);
 
     SysCtlPeripheralEnable(SYSCTL_PERIPH_TIMER1);
     TimerConfigure(TIMER1_BASE, TIMER_CFG_PERIODIC);
@@ -103,22 +106,21 @@ int main(void) {
     // [test] TimerEnable(TIMER1_BASE, TIMER_A);
 
     // Test communication.
-    uint8_t data[] = { 0x00, 0x08, 0x00, 0x18 };
-    frame frame = create_frame(0x01, 0x04, data, 0x71C2);
+    uint8_t data[] = { 0x00, 0x02, 0x00, 0x02 };
+    frame frame = create_frame(0x01, 0x04, data, 0xD00B);
     set_direction(TRANSMIT);
     if (!uart_send_frame(UART6_BASE, frame)) {
-        // TODO: try here set_direction(RECEIVE);
     }
 
     while (1) {
         switch (current_state) {
         case SEND_MESSAGE:
             // TODO: send a message
-            // TODO: current_state = IDLE;
+            // TODO: current_state = WAITING;
             break;
         case MESSAGE_RECEIVED:
             // TODO: parse_incoming_message(buffer);
-            // TODO: current_state = IDLE;
+            // TODO: current_state = WAITING;
             break;
         default:
             continue;
