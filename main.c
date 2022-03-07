@@ -77,7 +77,8 @@ int main(void) {
     UARTConfigSetExpClk(UART6_BASE, ui32SysClock, BAUD_RATE,
                         (UART_CONFIG_WLEN_8 | UART_CONFIG_STOP_ONE | UART_CONFIG_PAR_EVEN));
     IntEnable(INT_UART6);
-    UARTIntEnable(UART6_BASE, UART_INT_RX | UART_INT_TX);
+    UARTIntEnable(UART6_BASE, UART_INT_RX | UART_INT_RT | UART_INT_TX);
+    UARTFIFOLevelSet(UART6_BASE, UART_FIFO_TX4_8, UART_FIFO_RX1_8);
     UARTTxIntModeSet(UART6_BASE, UART_TXINT_MODE_EOT);
 
     // Initialise GPIO pin.
@@ -102,8 +103,8 @@ int main(void) {
     // [test] TimerEnable(TIMER1_BASE, TIMER_A);
 
     // Test communication.
-    uint8_t data[] = { 0x00, 0x00, 0x00, 0x05 };
-    frame frame = create_frame(0x01, 0x04, data, 0x3009);
+    uint8_t data[] = { 0x00, 0x08, 0x00, 0x18 };
+    frame frame = create_frame(0x01, 0x04, data, 0x71C2);
     set_direction(TRANSMIT);
     if (!uart_send_frame(UART6_BASE, frame)) {
         // TODO: try here set_direction(RECEIVE);
