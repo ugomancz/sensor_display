@@ -9,10 +9,11 @@
 #include <ti/devices/msp432e4/inc/msp432e411y.h>
 #include "globals.h"
 #include "modbus_test.h"
+#include "crc.h"
 
 volatile state current_state = SEND_MESSAGE;
 
-/* Incoming byte at UART6 interrupt handler. */
+/* UART interrupt handler. */
 void UART6_IRQHandler(void) {
     uint32_t ui32Status;
     TimerDisable(TIMER0_BASE, TIMER_A);
@@ -28,18 +29,13 @@ void UART6_IRQHandler(void) {
             return;
     }
 
-    if (current_state == MESSAGE_RECEIVED) {
-            // Should only occur in case of fault in transmission.
+    if (current_state == MESSAGE_RECEIVED) { // Should only occur in case of fault in transmission.
             return;
     }
 
-    while (UARTCharsAvail(UART6_BASE)) {
-        buffer[buffer_position++] = UARTCharGet(UART6_BASE);
-    }
+    buffer[buffer_position++] = UARTCharGet(UART6_BASE);
 
-    if (current_state != MESSAGE_RECEIVED) {
-                // Resets the T15 (message_timeout) timer.
-                TimerDisable(TIMER0_BASE, TIMER_A);
+    if (current_state != MESSAGE_RECEIVED) { // Resets the T15 (message_timeout) timer.
                 TimerLoadSet(TIMER0_BASE, TIMER_A, T_15_CYCLES);
                 TimerEnable(TIMER0_BASE, TIMER_A);
     }
@@ -49,12 +45,6 @@ void UART6_IRQHandler(void) {
 void TIMER0A_IRQHandler(void) {
     TimerIntClear(TIMER0_BASE, TIMER_TIMA_TIMEOUT);
     current_state = MESSAGE_RECEIVED;
-}
-
-/* The interrupt handler for the periodic send message timer interrupt. */
-void TIMER1A_IRQHandler(void) {
-    TimerIntClear(TIMER1_BASE, TIMER_TIMA_TIMEOUT);
-    current_state = SEND_MESSAGE;
 }
 
 int main(void) {
@@ -97,13 +87,6 @@ int main(void) {
     TimerLoadSet(TIMER0_BASE, TIMER_A, T_15_CYCLES);
     IntEnable(INT_TIMER0A);
     TimerIntEnable(TIMER0_BASE, TIMER_TIMA_TIMEOUT);
-
-    SysCtlPeripheralEnable(SYSCTL_PERIPH_TIMER1);
-    TimerConfigure(TIMER1_BASE, TIMER_CFG_PERIODIC);
-    TimerLoadSet(TIMER1_BASE, TIMER_A, FREQ/2);
-    IntEnable(INT_TIMER1A);
-    TimerIntEnable(TIMER1_BASE, TIMER_TIMA_TIMEOUT);
-    // [test] TimerEnable(TIMER1_BASE, TIMER_A);
 
     // Test communication.
     uint8_t data[] = { 0x00, 0x02, 0x00, 0x02 };
