@@ -14,7 +14,7 @@
 
 volatile comm_states comm_state = SEND_MESSAGE;
 
-/* UART interrupt handler. */
+/* UART interrupt handler */
 void UART6_IRQHandler(void) {
     uint32_t ui32Status;
     TimerDisable(TIMER0_BASE, TIMER_A);
@@ -25,45 +25,54 @@ void UART6_IRQHandler(void) {
     // Clear the asserted interrupts.
     UARTIntClear(UART6_BASE, ui32Status);
 
-    if (ui32Status & UART_INT_TX) { // end-of-transmission interrupt
+    // end-of-transmission interrupt
+    if (ui32Status & UART_INT_TX) {
             set_direction(RECEIVE);
             return;
     }
 
-    if (comm_state == MESSAGE_RECEIVED) { // Should only occur in case of fault in transmission.
+    // Should only occur in case of fault in transmission
+    if (comm_state == MESSAGE_RECEIVED) {
             return;
     }
 
     buffer[buffer_position++] = UARTCharGet(UART6_BASE);
-
-    if (comm_state != MESSAGE_RECEIVED) { // Resets the T15 (message_timeout) timer.
+    // Resets the T15 (message_timeout) timer
+    if (comm_state != MESSAGE_RECEIVED) {
                 TimerLoadSet(TIMER0_BASE, TIMER_A, T_15_CYCLES);
                 TimerEnable(TIMER0_BASE, TIMER_A);
     }
 }
 
-/* The interrupt handler for the T15 (message received) timer interrupt. */
+/* The interrupt handler for the T15 (message received) timer interrupt */
 void TIMER0A_IRQHandler(void) {
     TimerIntClear(TIMER0_BASE, TIMER_TIMA_TIMEOUT);
     comm_state = MESSAGE_RECEIVED;
 }
 
+/* TODO: Delete later */
+void comm_test() {
+    uint8_t data[] = { 0x00, 0x02, 0x00, 0x02 };
+    frame f = create_frame(0x01, 0x04, data);
+    set_direction(TRANSMIT);
+    uart_send_frame(UART6_BASE, f);
+}
+
 int main(void) {
     uint32_t ui32SysClock;
     volatile uint32_t ui32Loop;
-    buffer = calloc(256,1);
 
-    // Run from the PLL at 120 MHz.
+    // Run from the PLL at 120 MHz
     ui32SysClock = SysCtlClockFreqSet((SYSCTL_XTAL_25MHZ | SYSCTL_OSC_MAIN | SYSCTL_USE_PLL | SYSCTL_CFG_VCO_480),
     FREQ);
 
-    // Initialise LCD driver and touch driver.
+    // Initialise LCD driver and touch driver
     Kentec_Init(ui32SysClock);
     TouchScreenInit(ui32SysClock);
     Graphics_initContext(&sContext, &Kentec_GD, &Kentec_fxns);
     Graphics_setFont(&sContext, &g_sFontCmsc26);
 
-    // Initialise UART 6.
+    // Initialise UART 6
     SysCtlPeripheralEnable(SYSCTL_PERIPH_UART6);
     IntMasterEnable();
 
@@ -77,34 +86,36 @@ int main(void) {
     UARTFIFODisable(UART6_BASE);
     UARTTxIntModeSet(UART6_BASE, UART_TXINT_MODE_EOT);
 
-    // Initialise GPIO pin.
+    // Initialise GPIO pin
     SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOH);
     while (!SysCtlPeripheralReady(SYSCTL_PERIPH_GPIOH)) {
     }
     GPIOPinTypeGPIOOutput(GPIO_PORTH_BASE, GPIO_PIN_4);
 
-    // Initialise the T15 (message received) timer.
+    // Initialise the T15 (message received) timer
     SysCtlPeripheralEnable(SYSCTL_PERIPH_TIMER0);
     TimerConfigure(TIMER0_BASE, TIMER_CFG_ONE_SHOT);
     TimerLoadSet(TIMER0_BASE, TIMER_A, T_15_CYCLES);
     IntEnable(INT_TIMER0A);
     TimerIntEnable(TIMER0_BASE, TIMER_TIMA_TIMEOUT);
 
-    // Test communication.
-    uint8_t data[] = { 0x00, 0x02, 0x00, 0x02 };
-    frame f = create_frame(0x01, 0x04, data);
-    set_direction(TRANSMIT);
-    uart_send_frame(UART6_BASE, f);
+    // Allocate the buffer
+    if ((buffer = calloc(256, sizeof(uint8_t))) == NULL) {
+        exit(EXIT_FAILURE);
+    }
+
+    // Test communication
+    comm_test();
 
     while (1) {
         switch (comm_state) {
         case SEND_MESSAGE:
             // TODO: send a message
-            // TODO: current_state = WAITING;
+            // TODO: current_state = IDLE;
             break;
         case MESSAGE_RECEIVED:
             // TODO: parse_incoming_message(buffer);
-            // TODO: current_state = WAITING;
+            // TODO: current_state = IDLE;
             break;
         default:
             continue;
