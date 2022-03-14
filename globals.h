@@ -30,5 +30,6 @@ Graphics_Context sContext;
 
 extern uint8_t *buffer;
 extern uint16_t buffer_position;
+extern volatile uint8_t device_id;
 
 #endif /* GLOBALS_H_ */

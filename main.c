@@ -13,6 +13,7 @@
 #include "mdg04.h"
 
 volatile comm_states comm_state = SEND_MESSAGE;
+volatile uint8_t device_id = 0x01;
 
 /* UART interrupt handler */
 void UART6_IRQHandler(void) {
