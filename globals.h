@@ -22,7 +22,7 @@
 
 typedef enum {IDLE, SEND_MESSAGE, MESSAGE_RECEIVED} comm_states;
 typedef enum {FIND, MENU, DOSE, DOSE_RATE} display_state;
-typedef enum {DOSE, DOSE_RATE, ID, TEMP} message_type;
+typedef enum {DOSE_MSG, DOSE_RATE_MSG, ID, TEMP} message_type;
 
 extern const Graphics_Display_Functions Kentec_fxns;
 extern Graphics_Display Kentec_GD;
