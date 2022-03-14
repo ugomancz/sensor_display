@@ -1,3 +1,4 @@
+#include <communication.h>
 #include <stdlib.h>
 #include "ti/devices/msp432e4/driverlib/driverlib.h"
 #include <ti/devices/msp432e4/driverlib/interrupt.h>
@@ -8,10 +9,10 @@
 #include <ti/devices/msp432e4/driverlib/pin_map.h>
 #include <ti/devices/msp432e4/inc/msp432e411y.h>
 #include "globals.h"
-#include "modbus_test.h"
 #include "crc.h"
+#include "mdg04.h"
 
-volatile state current_state = SEND_MESSAGE;
+volatile comm_states comm_state = SEND_MESSAGE;
 
 /* UART interrupt handler. */
 void UART6_IRQHandler(void) {
@@ -29,13 +30,13 @@ void UART6_IRQHandler(void) {
             return;
     }
 
-    if (current_state == MESSAGE_RECEIVED) { // Should only occur in case of fault in transmission.
+    if (comm_state == MESSAGE_RECEIVED) { // Should only occur in case of fault in transmission.
             return;
     }
 
     buffer[buffer_position++] = UARTCharGet(UART6_BASE);
 
-    if (current_state != MESSAGE_RECEIVED) { // Resets the T15 (message_timeout) timer.
+    if (comm_state != MESSAGE_RECEIVED) { // Resets the T15 (message_timeout) timer.
                 TimerLoadSet(TIMER0_BASE, TIMER_A, T_15_CYCLES);
                 TimerEnable(TIMER0_BASE, TIMER_A);
     }
@@ -44,12 +45,13 @@ void UART6_IRQHandler(void) {
 /* The interrupt handler for the T15 (message received) timer interrupt. */
 void TIMER0A_IRQHandler(void) {
     TimerIntClear(TIMER0_BASE, TIMER_TIMA_TIMEOUT);
-    current_state = MESSAGE_RECEIVED;
+    comm_state = MESSAGE_RECEIVED;
 }
 
 int main(void) {
     uint32_t ui32SysClock;
     volatile uint32_t ui32Loop;
+    buffer = calloc(256,1);
 
     // Run from the PLL at 120 MHz.
     ui32SysClock = SysCtlClockFreqSet((SYSCTL_XTAL_25MHZ | SYSCTL_OSC_MAIN | SYSCTL_USE_PLL | SYSCTL_CFG_VCO_480),
@@ -90,13 +92,12 @@ int main(void) {
 
     // Test communication.
     uint8_t data[] = { 0x00, 0x02, 0x00, 0x02 };
-    frame frame = create_frame(0x01, 0x04, data, 0xD00B);
+    frame f = create_frame(0x01, 0x04, data);
     set_direction(TRANSMIT);
-    if (!uart_send_frame(UART6_BASE, frame)) {
-    }
+    uart_send_frame(UART6_BASE, f);
 
     while (1) {
-        switch (current_state) {
+        switch (comm_state) {
         case SEND_MESSAGE:
             // TODO: send a message
             // TODO: current_state = WAITING;
