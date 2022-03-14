@@ -47,5 +47,25 @@ uint16_t get_crc(uint8_t *nData, uint16_t len) {
         crc >>= 8;
         crc ^= crc_table[temp];
     }
- return crc;
+    return crc;
+}
+
+uint16_t get_frame_crc(uint8_t slave_addr, uint8_t fn_code, uint8_t *nData, uint16_t len) {
+    uint8_t temp;
+    uint16_t crc = 0xFFFF;
+    temp = slave_addr ^ crc;
+    crc >>= 8;
+    crc ^= crc_table[temp];
+    temp = fn_code ^ crc;
+    crc >>= 8;
+    crc ^= crc_table[temp];
+    while (len--) {
+        temp = *nData++ ^ crc;
+        crc >>= 8;
+        crc ^= crc_table[temp];
+    }
+    return crc;
+}
+uint16_t to_modbus_compatible(uint16_t original_crc) {
+    return (original_crc << 8) | (original_crc >> 8);
 }
