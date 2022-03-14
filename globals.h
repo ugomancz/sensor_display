@@ -21,8 +21,7 @@
 #define T_15_CYCLES (T_15 * (FREQ / 1000000))
 
 typedef enum {IDLE, SEND_MESSAGE, MESSAGE_RECEIVED} comm_states;
-typedef enum {FIND, MENU, DOSE, DOSE_RATE} display_state;
-typedef enum {DOSE_MSG, DOSE_RATE_MSG, ID, TEMP} message_type;
+typedef enum {FIND, MENU, DOSE, DOSE_RATE} context_state;
 
 extern const Graphics_Display_Functions Kentec_fxns;
 extern Graphics_Display Kentec_GD;

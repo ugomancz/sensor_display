@@ -13,6 +13,7 @@
 #include "mdg04.h"
 
 volatile comm_states comm_state = SEND_MESSAGE;
+volatile context_state current_context = FIND;
 volatile uint8_t device_id = 0x01;
 
 /* UART interrupt handler */
@@ -104,6 +105,9 @@ int main(void) {
     if ((buffer = calloc(256, sizeof(uint8_t))) == NULL) {
         exit(EXIT_FAILURE);
     }
+
+    // TODO: Define these
+    frame read_dose, read_dose_rate, read_temp, read_id;
 
     // Test communication
     comm_test();
