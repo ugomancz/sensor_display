@@ -10,9 +10,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "kentec.h"
-#include "touch.h"
-#include <ti/grlib/grlib.h>
+
 
 
 #define FREQ 120000000
@@ -22,10 +20,6 @@
 
 typedef enum {IDLE, SEND_MESSAGE, MESSAGE_RECEIVED} comm_states;
 typedef enum {FIND, MENU, DOSE, DOSE_RATE} context_state;
-
-extern const Graphics_Display_Functions Kentec_fxns;
-extern Graphics_Display Kentec_GD;
-Graphics_Context sContext;
 
 extern uint8_t *buffer;
 extern uint16_t buffer_position;

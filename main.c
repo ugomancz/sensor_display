@@ -11,6 +11,7 @@
 #include "globals.h"
 #include "crc.h"
 #include "mdg04.h"
+#include "gui.h"
 
 volatile comm_states comm_state = SEND_MESSAGE;
 volatile context_state current_context = FIND;
