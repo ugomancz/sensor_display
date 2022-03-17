@@ -14,6 +14,7 @@
 
 volatile comm_states comm_state = SEND_MESSAGE;
 volatile context_state current_context = FIND;
+volatile context_state old_context = FIND;
 volatile uint8_t device_id = 0x01;
 
 /* UART interrupt handler */
@@ -113,17 +114,20 @@ int main(void) {
     comm_test();
 
     while (1) {
-        switch (comm_state) {
-        case SEND_MESSAGE:
-            // TODO: send a message
-            // TODO: current_state = IDLE;
-            break;
-        case MESSAGE_RECEIVED:
-            // TODO: parse_incoming_message(buffer);
-            // TODO: current_state = IDLE;
-            break;
-        default:
-            continue;
+        // Wait for the context shift to be complete
+        if (current_context == old_context) {
+            switch (comm_state) {
+            case SEND_MESSAGE:
+                // TODO: send a message
+                // TODO: current_state = IDLE;
+                break;
+            case MESSAGE_RECEIVED:
+                // TODO: parse_incoming_message(current_context);
+                // TODO: current_state = IDLE;
+                break;
+            default:
+                continue;
+            }
         }
     }
 }
