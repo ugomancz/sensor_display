@@ -1,17 +1,17 @@
-#include <communication.h>
 #include <stdlib.h>
 #include "ti/devices/msp432e4/driverlib/driverlib.h"
-#include <ti/devices/msp432e4/driverlib/interrupt.h>
-#include <ti/devices/msp432e4/driverlib/uart.h>
-#include <ti/drivers/uart/UARTMSP432E4.h>
 #include <ti/devices/msp432e4/driverlib/gpio.h>
-#include <ti/devices/msp432e4/driverlib/sysctl.h>
+#include <ti/devices/msp432e4/driverlib/interrupt.h>
 #include <ti/devices/msp432e4/driverlib/pin_map.h>
+#include <ti/devices/msp432e4/driverlib/sysctl.h>
+#include <ti/devices/msp432e4/driverlib/uart.h>
 #include <ti/devices/msp432e4/inc/msp432e411y.h>
-#include "globals.h"
+#include <ti/drivers/uart/UARTMSP432E4.h>
+#include "communication.h"
 #include "crc.h"
-#include "mdg04.h"
+#include "globals.h"
 #include "gui.h"
+#include "mdg04.h"
 
 volatile comm_states comm_state = SEND_MESSAGE;
 volatile context_state current_context = FIND;
@@ -73,8 +73,7 @@ int main(void) {
     // Initialise LCD driver and touch driver
     Kentec_Init(ui32SysClock);
     TouchScreenInit(ui32SysClock);
-    Graphics_initContext(&sContext, &Kentec_GD, &Kentec_fxns);
-    Graphics_setFont(&sContext, &g_sFontCmsc26);
+    Graphics_initContext(&g_context, &Kentec_GD, &Kentec_fxns);
 
     // Initialise UART 6
     SysCtlPeripheralEnable(SYSCTL_PERIPH_UART6);
@@ -113,6 +112,9 @@ int main(void) {
 
     // Test communication
     comm_test();
+
+    // Test GUI
+    update_display(current_context);
 
     while (1) {
         // Wait for the context shift to be complete
