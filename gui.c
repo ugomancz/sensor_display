@@ -37,10 +37,10 @@ button find_reject_button = {
 };
 
 
-void update_display(context_state context) {
+void update_display() {
     Graphics_setBackgroundColor(&g_context, GRAPHICS_COLOR_BLACK);
     Graphics_setForegroundColor(&g_context, GRAPHICS_COLOR_WHITE);
-    switch (context) {
+    switch (current_context) {
     case FIND:
         Graphics_clearDisplay(&g_context);
         _update_display_find_lookup(comm_state == MESSAGE_RECEIVED);

@@ -36,8 +36,8 @@ extern button to_menu_button;
 extern button find_accept_button;
 extern button find_reject_button;
 
-// Updates the display content based on the given context
-void update_display(context_state context);
+// Updates the display content based on the current context
+void update_display();
 
 /* Update/redraw display with specific screen. Used internally by update_display() */
 void _update_display_find_lookup(bool found);
