@@ -121,7 +121,7 @@ int main(void) {
                 comm_state = IDLE;
                 break;
             case MESSAGE_RECEIVED:
-                // TODO: parse_incoming_message(current_context);
+                parse_received();
                 update_display();
                 comm_state = IDLE;
                 break;

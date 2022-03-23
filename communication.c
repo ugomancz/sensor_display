@@ -57,3 +57,30 @@ void _get_dev_id() {
         UARTCharPut(UART6_BASE, message[i]);
     }
 }
+
+
+void parse_received() {
+    /* Check correct device address, function code and message length */
+    if (buffer[0] != device_address || buffer[1] != 0x04 || buffer[2] != buffer_position - 5) {
+        reset_buffer();
+        return;
+    }
+    /* Check CRC */
+    uint16_t message_crc = buffer[buffer_position - 2];
+    message_crc <<= 8;
+    message_crc |= buffer[buffer_position - 1];
+    if (message_crc != to_modbus_compatible(get_crc(buffer, buffer_position - 2))) {
+        reset_buffer();
+        return;
+    }
+    switch (current_context) {
+        case FIND:
+            memcpy(&device_id, buffer + 3, buffer[2]);
+            break;
+        }
+}
+
+void reset_buffer() {
+    buffer_position = 0;
+    memset(buffer, 0, 256);
+}
