@@ -43,6 +43,6 @@ void update_display(context_state context);
 void _update_display_find_lookup(bool found);
 // TODO: Add other contexts
 
-void draw_button(Graphics_Context *g_context, button *b);
+void draw_button(button *b);
 
 #endif /* GUI_H_ */
