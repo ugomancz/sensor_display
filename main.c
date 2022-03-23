@@ -108,12 +108,12 @@ int main(void) {
     }
 
     // TODO: Define these
-    frame read_dose, read_dose_rate, read_temp, read_id;
+    frame read_dose, read_dose_rate, read_temp;
 
     // Test communication
-    comm_test();
+    //comm_test();
 
-    // Test GUI
+    // Start GUI
     update_display(current_context);
 
     while (1) {
@@ -121,12 +121,12 @@ int main(void) {
         if (current_context == old_context) {
             switch (comm_state) {
             case SEND_MESSAGE:
-                // TODO: send a message
-                // TODO: current_state = IDLE;
+                send_message();
+                comm_state = IDLE;
                 break;
             case MESSAGE_RECEIVED:
                 // TODO: parse_incoming_message(current_context);
-                update_display(current_context);
+                update_display();
                 comm_state = IDLE;
                 break;
             default:

@@ -7,7 +7,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include "crc.h"
-#include "globals.h"
 
 frame create_frame(uint8_t slave_address, uint8_t function_code, uint8_t *data) {
     frame f;
@@ -40,4 +39,21 @@ void set_direction(direction dir) {
 bool parse_incoming_message(frame *f) {
     uint16_t crc = get_crc(buffer, buffer_position - 2);
     return true;
+}
+
+
+void send_message() {
+    set_direction(TRANSMIT);
+    switch (current_context) {
+    case FIND:
+        _get_dev_id();
+        break;
+    }
+}
+
+void _get_dev_id() {
+    const uint8_t message[] = {device_id, 0x04, 0x00, 0x00, 0x00, 0x24, 0xF0, 0x11};
+    for (short i = 0; i < 8; ++i) {
+        UARTCharPut(UART6_BASE, message[i]);
+    }
 }

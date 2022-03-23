@@ -10,6 +10,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include "globals.h"
 
 typedef enum {
     TRANSMIT,
@@ -36,5 +37,11 @@ frame create_frame(uint8_t slave_address, uint8_t function_code, uint8_t *data);
 void set_direction(direction dir);
 int uart_send_frame(uint32_t uart_base, frame message);
 bool parse_incoming_message(frame *f);
+
+/* Top level function to send message to the sensor based on the current context */
+void send_message();
+
+/* Sends a specific message to the sensor. Used internally by send_message() */
+void _get_dev_id();
 
 #endif /* COMMUNICATION_H_ */
