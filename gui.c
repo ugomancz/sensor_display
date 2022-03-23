@@ -53,7 +53,7 @@ void _update_display_find_lookup(bool found) {
     Graphics_setFont(&g_context, &g_sFontCm24b);
     Graphics_drawString(&g_context, "Device lookup", -1, 4, 9, false);
     Graphics_drawLineH(&g_context, 1, 320, 40);
-    sprintf((char *) &string_buffer,  "Scanning address: 0x%02x", device_id);
+    sprintf((char *) &string_buffer,  "Scanning address: 0x%02x", device_address);
     Graphics_drawStringCentered(&g_context, string_buffer, -1, 160, 90, false);
     draw_button(&to_menu_button);
     if (found) {

@@ -13,4 +13,5 @@
  * Main buffer for storing incoming messages.
  */
 uint8_t *buffer;
-uint16_t buffer_position;
+uint16_t buffer_position = 0;
+dev_id device_id = {0};

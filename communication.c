@@ -52,7 +52,7 @@ void send_message() {
 }
 
 void _get_dev_id() {
-    const uint8_t message[] = {device_id, 0x04, 0x00, 0x00, 0x00, 0x24, 0xF0, 0x11};
+    const uint8_t message[] = {device_address, 0x04, 0x00, 0x00, 0x00, 0x24, 0xF0, 0x11};
     for (short i = 0; i < 8; ++i) {
         UARTCharPut(UART6_BASE, message[i]);
     }

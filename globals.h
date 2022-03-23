@@ -10,6 +10,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include "mdg04.h"
 
 
 
@@ -24,6 +25,7 @@ typedef enum {FIND, MENU, DOSE, DOSE_RATE} context_state;
 extern volatile context_state current_context;
 extern uint8_t *buffer;
 extern uint16_t buffer_position;
-extern volatile uint8_t device_id;
+extern volatile uint8_t device_address;
+extern dev_id device_id;
 
 #endif /* GLOBALS_H_ */

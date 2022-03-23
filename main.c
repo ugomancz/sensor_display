@@ -16,7 +16,7 @@
 volatile comm_states comm_state = SEND_MESSAGE;
 volatile context_state current_context = FIND;
 volatile context_state old_context = FIND;
-volatile uint8_t device_id = 0x01;
+volatile uint8_t device_address = 0x01;
 
 /* UART interrupt handler */
 void UART6_IRQHandler(void) {
@@ -107,10 +107,6 @@ int main(void) {
         exit(EXIT_FAILURE);
     }
 
-    // TODO: Define these
-    frame read_dose, read_dose_rate, read_temp;
-
-    // Test communication
     //comm_test();
 
     // Start GUI
