@@ -18,7 +18,7 @@
 #define T_15 (1.5 * (11 * 1000000 / BAUD_RATE))
 #define T_15_CYCLES (T_15 * (FREQ / 1000000))
 
-typedef enum {IDLE, SEND_MESSAGE, MESSAGE_RECEIVED} comm_states;
+
 typedef enum {FIND, MENU, DOSE, DOSE_RATE} context_state;
 
 extern uint8_t *buffer;
