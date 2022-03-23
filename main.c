@@ -56,7 +56,7 @@ void TIMER0A_IRQHandler(void) {
 
 /* TODO: Delete later */
 void comm_test() {
-    uint8_t data[] = { 0x00, 0x02, 0x00, 0x02 };
+    uint8_t data[] = { 0x00, 0x00, 0x00, 0x24 };
     frame f = create_frame(0x01, 0x04, data);
     set_direction(TRANSMIT);
     uart_send_frame(UART6_BASE, f);
@@ -126,7 +126,8 @@ int main(void) {
                 break;
             case MESSAGE_RECEIVED:
                 // TODO: parse_incoming_message(current_context);
-                // TODO: current_state = IDLE;
+                update_display(current_context);
+                comm_state = IDLE;
                 break;
             default:
                 continue;
