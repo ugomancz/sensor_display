@@ -42,7 +42,7 @@ void update_display() {
     Graphics_setForegroundColor(&g_context, GRAPHICS_COLOR_WHITE);
     switch (current_context) {
     case FIND:
-        Graphics_clearDisplay(&g_context);
+        Graphics_clearDisplay(&g_context); // TODO: remove to prevent flickering
         _update_display_find_lookup(comm_state == MESSAGE_RECEIVED);
         break;
     }

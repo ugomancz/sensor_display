@@ -16,7 +16,7 @@
 volatile comm_states comm_state = SEND_MESSAGE;
 volatile context_state current_context = FIND;
 volatile context_state old_context = FIND;
-volatile uint8_t device_address = 0x01;
+volatile uint8_t device_address = 0xf2;
 
 /* UART interrupt handler */
 void UART6_IRQHandler(void) {
@@ -54,6 +54,18 @@ void TIMER0A_IRQHandler(void) {
     comm_state = MESSAGE_RECEIVED;
 }
 
+/* The interrupt handler for the "send_message" timer interrupt */
+void TIMER1A_IRQHandler(void) {
+    TimerIntClear(TIMER1_BASE, TIMER_TIMA_TIMEOUT);
+    comm_state = SEND_MESSAGE;
+    if (current_context == FIND) {
+        if (device_address == 247) {
+            device_address = 0;
+        }
+        ++device_address;
+    }
+}
+
 /* TODO: Delete later */
 void comm_test() {
     uint8_t data[] = { 0x00, 0x00, 0x00, 0x24 };
@@ -61,6 +73,8 @@ void comm_test() {
     set_direction(TRANSMIT);
     uart_send_frame(UART6_BASE, f);
 }
+
+
 
 int main(void) {
     uint32_t ui32SysClock;
@@ -102,6 +116,13 @@ int main(void) {
     IntEnable(INT_TIMER0A);
     TimerIntEnable(TIMER0_BASE, TIMER_TIMA_TIMEOUT);
 
+    // Initialise the "send_message" timer
+    SysCtlPeripheralEnable(SYSCTL_PERIPH_TIMER1);
+    TimerConfigure(TIMER1_BASE, TIMER_CFG_PERIODIC);
+    TimerLoadSet(TIMER1_BASE, TIMER_A, ui32SysClock/5);
+    IntEnable(INT_TIMER1A);
+    TimerIntEnable(TIMER1_BASE, TIMER_TIMA_TIMEOUT);
+
     // Allocate the buffer
     if ((buffer = calloc(256, sizeof(uint8_t))) == NULL) {
         exit(EXIT_FAILURE);
@@ -112,15 +133,22 @@ int main(void) {
     // Start GUI
     update_display(current_context);
 
+    // Start periodic "send_message" timer
+    TimerEnable(TIMER1_BASE, TIMER_A);
+
     while (1) {
         // Wait for the context shift to be complete
         if (current_context == old_context) {
             switch (comm_state) {
             case SEND_MESSAGE:
                 send_message();
+                update_display();
                 comm_state = IDLE;
                 break;
             case MESSAGE_RECEIVED:
+                if (current_context == FIND) {
+                    TimerDisable(TIMER1_BASE, TIMER_A);
+                }
                 parse_received();
                 update_display();
                 comm_state = IDLE;
