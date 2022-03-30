@@ -36,6 +36,8 @@ extern button to_menu_button;
 extern button find_accept_button;
 extern button find_reject_button;
 
+int32_t touchcallback(uint32_t message, int32_t x, int32_t y);
+
 // Updates the display content based on the current context
 void update_display();
 

@@ -18,6 +18,7 @@ volatile context_state current_context = FIND;
 volatile context_state old_context = FIND;
 volatile uint8_t device_address = 0xf2;
 
+
 /* UART interrupt handler */
 void UART6_IRQHandler(void) {
     uint32_t ui32Status;
@@ -74,8 +75,6 @@ void comm_test() {
     uart_send_frame(UART6_BASE, f);
 }
 
-
-
 int main(void) {
     uint32_t ui32SysClock;
     volatile uint32_t ui32Loop;
@@ -87,6 +86,7 @@ int main(void) {
     // Initialise LCD driver and touch driver
     Kentec_Init(ui32SysClock);
     TouchScreenInit(ui32SysClock);
+    TouchScreenCallbackSet(touchcallback);
     Graphics_initContext(&g_context, &Kentec_GD, &Kentec_fxns);
 
     // Initialise UART 6
@@ -119,7 +119,7 @@ int main(void) {
     // Initialise the "send_message" timer
     SysCtlPeripheralEnable(SYSCTL_PERIPH_TIMER1);
     TimerConfigure(TIMER1_BASE, TIMER_CFG_PERIODIC);
-    TimerLoadSet(TIMER1_BASE, TIMER_A, ui32SysClock/5);
+    TimerLoadSet(TIMER1_BASE, TIMER_A, ui32SysClock/3);
     IntEnable(INT_TIMER1A);
     TimerIntEnable(TIMER1_BASE, TIMER_TIMA_TIMEOUT);
 
@@ -131,7 +131,7 @@ int main(void) {
     //comm_test();
 
     // Start GUI
-    update_display(current_context);
+    update_display();
 
     // Start periodic "send_message" timer
     TimerEnable(TIMER1_BASE, TIMER_A);

@@ -8,6 +8,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include "communication.h"
+#include "ti/devices/msp432e4/driverlib/driverlib.h"
 
 button to_menu_button = {
     .coords = {.xMin = 248, .yMin = 2, .xMax = 318, .yMax = 37},
@@ -36,6 +37,28 @@ button find_reject_button = {
     .active = false
 };
 
+bool button_was_pressed(button *b, int32_t x, int32_t y) {
+    return (b->coords.xMin <= x && b->coords.xMax >= x && b->coords.yMin <= y && b->coords.yMax >= y);
+}
+
+int32_t touchcallback(uint32_t message, int32_t x, int32_t y) {
+    if (message == MSG_PTR_UP) {
+        if (button_was_pressed(&to_menu_button, x, y)) {
+            // TODO: Switch context to main menu.
+        }
+        if (find_accept_button.active && button_was_pressed(&find_accept_button, x, y)) {
+            // TODO: Switch context to main menu.
+        }
+        if (find_reject_button.active && button_was_pressed(&find_reject_button, x, y)) {
+            comm_state = SEND_MESSAGE;
+            ++device_address;
+            reset_buffer();
+            TimerLoadSet(TIMER1_BASE, TIMER_A, FREQ/3);
+            TimerEnable(TIMER1_BASE, TIMER_A);
+        }
+    }
+    return 0;
+}
 
 void update_display() {
     Graphics_setBackgroundColor(&g_context, GRAPHICS_COLOR_BLACK);
@@ -81,3 +104,5 @@ void draw_button( button *b) {
     Graphics_setFont(&g_context, b->font);
     Graphics_drawStringCentered(&g_context, b->text, -1, (b->coords.xMax + b->coords.xMin) / 2, (b->coords.yMax + b->coords.yMin) / 2, false);
 }
+
+
