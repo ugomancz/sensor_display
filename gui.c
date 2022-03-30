@@ -42,7 +42,7 @@ void update_display() {
     Graphics_setForegroundColor(&g_context, GRAPHICS_COLOR_WHITE);
     switch (current_context) {
     case FIND:
-        Graphics_clearDisplay(&g_context); // TODO: remove to prevent flickering
+        // Graphics_clearDisplay(&g_context);
         _update_display_find_lookup(comm_state == MESSAGE_RECEIVED);
         break;
     }
@@ -53,6 +53,10 @@ void _update_display_find_lookup(bool found) {
     Graphics_setFont(&g_context, &g_sFontCm24b);
     Graphics_drawString(&g_context, "Device lookup", -1, 4, 9, false);
     Graphics_drawLineH(&g_context, 1, 320, 40);
+    const Graphics_Rectangle hide_address = {.xMin = 240, .yMin = 70, .xMax = 300, .yMax = 110};
+    Graphics_setForegroundColor(&g_context, GRAPHICS_COLOR_BLACK);
+    Graphics_fillRectangle(&g_context, &hide_address);
+    Graphics_setForegroundColor(&g_context, GRAPHICS_COLOR_WHITE);
     sprintf((char *) &string_buffer,  "Scanning address: 0x%02x", device_address);
     Graphics_drawStringCentered(&g_context, string_buffer, -1, 160, 90, false);
     draw_button(&to_menu_button);
@@ -62,6 +66,10 @@ void _update_display_find_lookup(bool found) {
         Graphics_drawStringCentered(&g_context, "Device found! Use the device?", -1, 160, 130, false);
         draw_button(&find_accept_button);
         draw_button(&find_reject_button);
+    } else {
+        Graphics_setForegroundColor(&g_context, GRAPHICS_COLOR_BLACK);
+        const Graphics_Rectangle hide_found = {.xMin = 0, .yMin = 115, .xMax = 319, .yMax = 239};
+        Graphics_fillRectangle(&g_context, &hide_found);
     }
 }
 
