@@ -17,6 +17,7 @@
 extern const Graphics_Display_Functions Kentec_fxns;
 extern Graphics_Display Kentec_GD;
 Graphics_Context g_context;
+extern volatile bool clr_screen;
 
 
 /* This struct is used to represent buttons */
@@ -42,7 +43,10 @@ int32_t touchcallback(uint32_t message, int32_t x, int32_t y);
 void update_display();
 
 /* Update/redraw display with specific screen. Used internally by update_display() */
-void _update_display_find_lookup(bool found);
+void _init_display_find();
+void _update_display_find(bool found);
+void _init_display_menu();
+void _update_display_menu();
 // TODO: Add other contexts
 
 void draw_button(button *b);

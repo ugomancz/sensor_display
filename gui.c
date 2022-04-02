@@ -10,6 +10,8 @@
 #include "communication.h"
 #include "ti/devices/msp432e4/driverlib/driverlib.h"
 
+volatile bool clr_screen = true;
+
 button to_menu_button = {
     .coords = {.xMin = 248, .yMin = 2, .xMax = 318, .yMax = 37},
     .button_color = GRAPHICS_COLOR_LIGHT_GRAY,
@@ -43,10 +45,13 @@ bool button_was_pressed(button *b, int32_t x, int32_t y) {
 
 int32_t touchcallback(uint32_t message, int32_t x, int32_t y) {
     if (message == MSG_PTR_UP) {
-        if (button_was_pressed(&to_menu_button, x, y)) {
-            // TODO: Switch context to main menu.
-        }
-        if (find_accept_button.active && button_was_pressed(&find_accept_button, x, y)) {
+        if (button_was_pressed(&to_menu_button, x, y) || (find_accept_button.active && button_was_pressed(&find_accept_button, x, y))) {
+            clr_screen = true;
+            current_context = MENU;
+            TimerDisable(TIMER0_BASE, TIMER_A);
+            UARTIntDisable(UART6_BASE, UART_INT_RX | UART_INT_TX);
+            // TimerIntRegister(ui32Base, ui32Timer, pfnHandler)
+            // TODO: run timer for 0.2s which resets the buffer, resets uart interrupt and turns interrupts back on
             // TODO: Switch context to main menu.
         }
         if (find_reject_button.active && button_was_pressed(&find_reject_button, x, y)) {
@@ -63,26 +68,45 @@ int32_t touchcallback(uint32_t message, int32_t x, int32_t y) {
 void update_display() {
     Graphics_setBackgroundColor(&g_context, GRAPHICS_COLOR_BLACK);
     Graphics_setForegroundColor(&g_context, GRAPHICS_COLOR_WHITE);
+    if (clr_screen) {
+        Graphics_clearDisplay(&g_context);
+    }
     switch (current_context) {
     case FIND:
-        // Graphics_clearDisplay(&g_context);
-        _update_display_find_lookup(comm_state == MESSAGE_RECEIVED);
+        if (clr_screen) {
+            _init_display_find();
+        } else {
+            _update_display_find(comm_state == MESSAGE_RECEIVED);
+        }
         break;
+    case MENU:
+        if (clr_screen) {
+            //_init_display_menu();
+        } else {
+            //_update_display_menu();
+        }
     }
+    clr_screen = false;
 }
 
-void _update_display_find_lookup(bool found) {
+void _init_display_find() {
     int8_t string_buffer[30];
     Graphics_setFont(&g_context, &g_sFontCm24b);
+    Graphics_setForegroundColor(&g_context, GRAPHICS_COLOR_WHITE);
     Graphics_drawString(&g_context, "Device lookup", -1, 4, 9, false);
     Graphics_drawLineH(&g_context, 1, 320, 40);
-    const Graphics_Rectangle hide_address = {.xMin = 240, .yMin = 70, .xMax = 300, .yMax = 110};
-    Graphics_setForegroundColor(&g_context, GRAPHICS_COLOR_BLACK);
-    Graphics_fillRectangle(&g_context, &hide_address);
-    Graphics_setForegroundColor(&g_context, GRAPHICS_COLOR_WHITE);
     sprintf((char *) &string_buffer,  "Scanning address: 0x%02x", device_address);
     Graphics_drawStringCentered(&g_context, string_buffer, -1, 160, 90, false);
     draw_button(&to_menu_button);
+}
+
+void _update_display_find(bool found) {
+    const Graphics_Rectangle hide_address = {.xMin = 240, .yMin = 70, .xMax = 300, .yMax = 110};
+    const Graphics_Rectangle hide_found = {.xMin = 0, .yMin = 115, .xMax = 319, .yMax = 239};
+
+    Graphics_setForegroundColor(&g_context, GRAPHICS_COLOR_BLACK);
+    Graphics_fillRectangle(&g_context, &hide_address);
+    _init_display_find();
     if (found) {
         Graphics_setForegroundColor(&g_context, GRAPHICS_COLOR_WHITE);
         Graphics_setFont(&g_context, &g_sFontCm22);
@@ -90,8 +114,6 @@ void _update_display_find_lookup(bool found) {
         draw_button(&find_accept_button);
         draw_button(&find_reject_button);
     } else {
-        Graphics_setForegroundColor(&g_context, GRAPHICS_COLOR_BLACK);
-        const Graphics_Rectangle hide_found = {.xMin = 0, .yMin = 115, .xMax = 319, .yMax = 239};
         Graphics_fillRectangle(&g_context, &hide_found);
     }
 }
