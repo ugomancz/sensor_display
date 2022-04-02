@@ -18,6 +18,7 @@
 #define BAUD_RATE 9600
 #define T_15 (1.5 * (11 * 1000000 / BAUD_RATE))
 #define T_15_CYCLES (T_15 * (FREQ / 1000000))
+#define FIND_SEND_MSG_DELAY FREQ/5
 
 
 typedef enum {FIND, MENU, DOSE, DOSE_RATE} context_state;

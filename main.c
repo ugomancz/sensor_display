@@ -119,7 +119,7 @@ int main(void) {
     // Initialise the "send_message" timer
     SysCtlPeripheralEnable(SYSCTL_PERIPH_TIMER1);
     TimerConfigure(TIMER1_BASE, TIMER_CFG_PERIODIC);
-    TimerLoadSet(TIMER1_BASE, TIMER_A, ui32SysClock/3);
+    TimerLoadSet(TIMER1_BASE, TIMER_A, FIND_SEND_MSG_DELAY);
     IntEnable(INT_TIMER1A);
     TimerIntEnable(TIMER1_BASE, TIMER_TIMA_TIMEOUT);
 

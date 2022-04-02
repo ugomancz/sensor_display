@@ -53,7 +53,7 @@ int32_t touchcallback(uint32_t message, int32_t x, int32_t y) {
             comm_state = SEND_MESSAGE;
             ++device_address;
             reset_buffer();
-            TimerLoadSet(TIMER1_BASE, TIMER_A, FREQ/3);
+            TimerLoadSet(TIMER1_BASE, TIMER_A, FIND_SEND_MSG_DELAY);
             TimerEnable(TIMER1_BASE, TIMER_A);
         }
     }
