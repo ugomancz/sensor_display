@@ -10,7 +10,6 @@
 
 #include <stdint.h>
 #include <ti/grlib/grlib.h>
-#include "globals.h"
 #include "kentec.h"
 #include "touch.h"
 

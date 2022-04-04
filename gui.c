@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include "communication.h"
 #include "ti/devices/msp432e4/driverlib/driverlib.h"
+#include "application.h"
 
 volatile bool clr_screen = true;
 
@@ -48,11 +49,9 @@ int32_t touchcallback(uint32_t message, int32_t x, int32_t y) {
         if (button_was_pressed(&to_menu_button, x, y) || (find_accept_button.active && button_was_pressed(&find_accept_button, x, y))) {
             clr_screen = true;
             current_context = MENU;
-            TimerDisable(TIMER0_BASE, TIMER_A);
-            UARTIntDisable(UART6_BASE, UART_INT_RX | UART_INT_TX);
-            // TimerIntRegister(ui32Base, ui32Timer, pfnHandler)
-            // TODO: run timer for 0.2s which resets the buffer, resets uart interrupt and turns interrupts back on
-            // TODO: Switch context to main menu.
+            find_accept_button.active = false;
+            find_reject_button.active = false;
+            start_context_switch();
         }
         if (find_reject_button.active && button_was_pressed(&find_reject_button, x, y)) {
             comm_state = SEND_MESSAGE;
@@ -81,7 +80,7 @@ void update_display() {
         break;
     case MENU:
         if (clr_screen) {
-            //_init_display_menu();
+            _init_display_menu();
         } else {
             //_update_display_menu();
         }
@@ -116,6 +115,17 @@ void _update_display_find(bool found) {
     } else {
         Graphics_fillRectangle(&g_context, &hide_found);
     }
+}
+
+void _init_display_menu() {
+    int8_t string_buffer[30];
+    Graphics_setFont(&g_context, &g_sFontCm24b);
+    Graphics_setForegroundColor(&g_context, GRAPHICS_COLOR_WHITE);
+    Graphics_drawString(&g_context, "Menu", -1, 4, 9, false);
+    Graphics_drawLineH(&g_context, 1, 320, 40);
+    sprintf((char *) &string_buffer,  "Scanning address: 0x%02x", device_address);
+    Graphics_drawStringCentered(&g_context, string_buffer, -1, 160, 90, false);
+    draw_button(&to_menu_button);
 }
 
 void draw_button( button *b) {

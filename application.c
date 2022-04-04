@@ -20,8 +20,12 @@ volatile uint8_t device_address = 0xf2;
 uint8_t *buffer;
 uint16_t buffer_position = 0;
 dev_id device_id = {0};
+volatile int random = 0;
+
+void TIMER1A_IRQHandler();
 
 void context_switch_done() {
+    ++random;
     TimerIntClear(TIMER1_BASE, TIMER_TIMA_TIMEOUT);
     buffer_position = 0;
     reset_buffer();
@@ -29,14 +33,18 @@ void context_switch_done() {
     UARTIntEnable(UART6_BASE, UART_INT_RX | UART_INT_TX);
     old_context = current_context;
     comm_state = SEND_MESSAGE;
+    TimerDisable(TIMER1_BASE, TIMER_A);
+    TimerIntRegister(TIMER1_BASE, TIMER_A, TIMER1A_IRQHandler);
+    TimerLoadSet(TIMER1_BASE, TIMER_A, SEND_MSG_DELAY);
+    TimerEnable(TIMER1_BASE, TIMER_A);
 }
 
 void start_context_switch() {
-    TimerDisable(TIMER0_BASE, TIMER_A);
+    TimerDisable(TIMER1_BASE, TIMER_A);
     UARTIntDisable(UART6_BASE, UART_INT_RX | UART_INT_TX);
-    TimerIntRegister(TIMER0_BASE, TIMER_A, context_switch_done);
-    TimerLoadSet(TIMER0_BASE, TIMER_A, CONTEXT_SWITCH_DELAY);
-    TimerEnable(TIMER0_BASE, TIMER_A);
+    TimerIntRegister(TIMER1_BASE, TIMER_A, context_switch_done);
+    TimerLoadSet(TIMER1_BASE, TIMER_A, CONTEXT_SWITCH_DELAY);
+    TimerEnable(TIMER1_BASE, TIMER_A);
 }
 
 /* UART interrupt handler */
@@ -85,14 +93,6 @@ void TIMER1A_IRQHandler(void) {
         }
         ++device_address;
     }
-}
-
-/* TODO: Delete later */
-void comm_test() {
-    uint8_t data[] = { 0x00, 0x00, 0x00, 0x24 };
-    frame f = create_frame(0x01, 0x04, data);
-    set_direction(TRANSMIT);
-    uart_send_frame(UART6_BASE, f);
 }
 
 int main(void) {
@@ -147,8 +147,6 @@ int main(void) {
     if ((buffer = calloc(256, sizeof(uint8_t))) == NULL) {
         exit(EXIT_FAILURE);
     }
-
-    //comm_test();
 
     // Start GUI
     update_display();

@@ -10,7 +10,6 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "globals.h"
 
 typedef enum {
     TRANSMIT,

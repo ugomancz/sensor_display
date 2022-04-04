@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "crc.h"
+#include "application.h"
 
 frame create_frame(uint8_t slave_address, uint8_t function_code, uint8_t *data) {
     frame f;
