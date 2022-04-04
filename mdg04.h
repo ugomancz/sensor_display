@@ -44,6 +44,10 @@ typedef struct {
     uint16_t _res;
 } ch_val;
 
-uint8_t * switch_endianity(uint8_t *s);
+void switch_endianity(uint8_t *s);
+void format_hw_id(int8_t *buffer, uint32_t id);
+void format_sw_id(int8_t *buffer, uint32_t id);
+
+
 
 #endif /* MDG04_H_ */
