@@ -24,10 +24,13 @@ void send_message() {
 }
 
 void _get_dev_id() {
-    const uint8_t message[] = {device_address, 0x04, 0x00, 0x00, 0x00, 0x24, 0xF0, 0x11}; // add calculated crc
-    for (short i = 0; i < 8; ++i) {
+    const uint8_t message[] = {device_address, 0x04, 0x00, 0x00, 0x00, 0x24};
+    const uint16_t crc = get_crc(message, 6);
+    for (short i = 0; i < 6; ++i) {
         UARTCharPut(UART6_BASE, message[i]);
     }
+    UARTCharPut(UART6_BASE, (uint8_t) crc);
+    UARTCharPut(UART6_BASE, (uint8_t) (crc >> 8));
 }
 
 
@@ -38,16 +41,15 @@ void parse_received() {
         return;
     }
     /* Check CRC */
-    uint16_t message_crc = buffer[buffer_position - 2];
-    message_crc <<= 8;
-    message_crc |= buffer[buffer_position - 1];
-    if (message_crc != to_modbus_compatible(get_crc(buffer, buffer_position - 2))) {
+    uint16_t message_crc = ((int16_t) buffer[buffer_position-1] << 8)| buffer[buffer_position-2];
+    if (message_crc != get_crc(buffer, buffer_position - 2)) {
         reset_buffer();
         return;
     }
     switch (current_context) {
         case FIND:
             memcpy(&device_id, buffer + 3, buffer[2]);
+            reset_buffer();
             break;
         }
 }
