@@ -49,6 +49,8 @@ void parse_received() {
     switch (current_context) {
         case FIND:
             memcpy(&device_id, buffer + 3, buffer[2]);
+            switch_endianity(device_id.pr_id);
+            switch_endianity(device_id.pr_name);
             break;
     }
     reset_buffer();
