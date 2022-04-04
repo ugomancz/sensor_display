@@ -47,7 +47,7 @@ bool button_was_pressed(button *b, int32_t x, int32_t y) {
 
 int32_t touchcallback(uint32_t message, int32_t x, int32_t y) {
     if (message == MSG_PTR_UP) {
-        if (button_was_pressed(&to_menu_button, x, y) || (find_accept_button.active && button_was_pressed(&find_accept_button, x, y))) {
+        if (to_menu_button.active && button_was_pressed(&to_menu_button, x, y) || (find_accept_button.active && button_was_pressed(&find_accept_button, x, y))) {
             clr_screen = true;
             current_context = MENU;
             find_accept_button.active = false;
@@ -70,7 +70,6 @@ void update_display() {
     Graphics_setForegroundColor(&g_context, GRAPHICS_COLOR_WHITE);
     if (clr_screen) {
         Graphics_clearDisplay(&g_context);
-        clr_screen = false;
     }
     switch (current_context) {
     case FIND:
@@ -87,6 +86,7 @@ void update_display() {
             //_update_display_menu();
         }
     }
+    clr_screen = false;
 }
 
 void _init_display_find() {
@@ -132,14 +132,14 @@ void _update_display_find(bool found) {
 }
 
 void _init_display_menu() {
+    to_menu_button.active = false;
     int8_t string_buffer[30];
     Graphics_setFont(&g_context, &g_sFontCm24b);
     Graphics_setForegroundColor(&g_context, GRAPHICS_COLOR_WHITE);
     Graphics_drawString(&g_context, "Menu", -1, 4, 9, false);
     Graphics_drawLineH(&g_context, 1, 320, 40);
     sprintf((char *) &string_buffer,  "Scanning address: 0x%02x", device_address);
-    //Graphics_drawStringCentered(&g_context, string_buffer, -1, 160, 90, false);
-    draw_button(&to_menu_button);
+    Graphics_drawStringCentered(&g_context, string_buffer, -1, 160, 90, false);
 }
 
 void draw_button( button *b) {
