@@ -44,4 +44,6 @@ typedef struct {
     uint16_t _res;
 } ch_val;
 
+uint8_t * switch_endianity(uint8_t *s);
+
 #endif /* MDG04_H_ */
