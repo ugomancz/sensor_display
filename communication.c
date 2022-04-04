@@ -49,9 +49,9 @@ void parse_received() {
     switch (current_context) {
         case FIND:
             memcpy(&device_id, buffer + 3, buffer[2]);
-            reset_buffer();
             break;
-        }
+    }
+    reset_buffer();
 }
 
 void reset_buffer() {
