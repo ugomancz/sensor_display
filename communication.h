@@ -22,20 +22,9 @@ typedef enum {
     MESSAGE_RECEIVED
 } comm_states;
 
-typedef struct {
-    uint8_t slave_address;
-    uint8_t function_code;
-    uint8_t *data;
-    uint16_t data_length;
-    uint16_t crc;
-} frame;
-
 extern volatile comm_states comm_state;
 
-frame create_frame(uint8_t slave_address, uint8_t function_code, uint8_t *data);
 void set_direction(direction dir);
-int uart_send_frame(uint32_t uart_base, frame message);
-bool parse_incoming_message(frame *f);
 
 /* Top level function to send message to the sensor based on the current context */
 void send_message();
