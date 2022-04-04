@@ -10,6 +10,7 @@
 #include "communication.h"
 #include "ti/devices/msp432e4/driverlib/driverlib.h"
 #include "application.h"
+#include "mdg04.h"
 
 volatile bool clr_screen = true;
 
@@ -69,6 +70,7 @@ void update_display() {
     Graphics_setForegroundColor(&g_context, GRAPHICS_COLOR_WHITE);
     if (clr_screen) {
         Graphics_clearDisplay(&g_context);
+        clr_screen = false;
     }
     switch (current_context) {
     case FIND:
@@ -85,31 +87,43 @@ void update_display() {
             //_update_display_menu();
         }
     }
-    clr_screen = false;
 }
 
 void _init_display_find() {
-    int8_t string_buffer[30];
     Graphics_setFont(&g_context, &g_sFontCm24b);
+    int8_t string_buffer[10];
     Graphics_setForegroundColor(&g_context, GRAPHICS_COLOR_WHITE);
     Graphics_drawString(&g_context, "Device lookup", -1, 4, 9, false);
     Graphics_drawLineH(&g_context, 1, 320, 40);
-    sprintf((char *) &string_buffer,  "Scanning address: 0x%02x", device_address);
-    Graphics_drawStringCentered(&g_context, string_buffer, -1, 160, 90, false);
+    Graphics_drawString(&g_context, "Scanning address:", -1, 4, 60, false);
+    sprintf((char *) &string_buffer, "0x%02x", device_address);
+    Graphics_drawString(&g_context, string_buffer, -1, 220, 60, false);
     draw_button(&to_menu_button);
 }
 
 void _update_display_find(bool found) {
-    const Graphics_Rectangle hide_address = {.xMin = 240, .yMin = 70, .xMax = 300, .yMax = 110};
-    const Graphics_Rectangle hide_found = {.xMin = 0, .yMin = 115, .xMax = 319, .yMax = 239};
+    const Graphics_Rectangle hide_address = {.xMin = 218, .yMin = 55, .xMax = 300, .yMax = 80};
+    const Graphics_Rectangle hide_found = {.xMin = 0, .yMin = 85, .xMax = 319, .yMax = 239};
 
     Graphics_setForegroundColor(&g_context, GRAPHICS_COLOR_BLACK);
     Graphics_fillRectangle(&g_context, &hide_address);
     _init_display_find();
     if (found) {
+        int8_t string_buffer[40];
+        Graphics_setFont(&g_context, &g_sFontCm22b);
         Graphics_setForegroundColor(&g_context, GRAPHICS_COLOR_WHITE);
-        Graphics_setFont(&g_context, &g_sFontCm22);
-        Graphics_drawStringCentered(&g_context, "Device found! Use the device?", -1, 160, 130, false);
+
+        sprintf((char *) &string_buffer,  "Device found!");
+        Graphics_drawStringCentered(&g_context, string_buffer, -1, 160, 98, false);
+
+        Graphics_setFont(&g_context, &g_sFontCm20);
+
+        sprintf((char *) &string_buffer,  "Name: %s", switch_endianity(device_id.pr_name));
+        Graphics_drawString(&g_context, string_buffer, -1, 4, 120, false);
+
+        sprintf((char *) &string_buffer,  "HW ID: %d", device_id.ser_no);
+        Graphics_drawString(&g_context, string_buffer, -1, 4, 140, false);
+
         draw_button(&find_accept_button);
         draw_button(&find_reject_button);
     } else {
@@ -124,7 +138,7 @@ void _init_display_menu() {
     Graphics_drawString(&g_context, "Menu", -1, 4, 9, false);
     Graphics_drawLineH(&g_context, 1, 320, 40);
     sprintf((char *) &string_buffer,  "Scanning address: 0x%02x", device_address);
-    Graphics_drawStringCentered(&g_context, string_buffer, -1, 160, 90, false);
+    //Graphics_drawStringCentered(&g_context, string_buffer, -1, 160, 90, false);
     draw_button(&to_menu_button);
 }
 
