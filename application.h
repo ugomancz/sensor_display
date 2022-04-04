@@ -1,12 +1,12 @@
 /*
- * globals.h
+ * application.h
  *
- *  Created on: 29 Jan 2022
+ *  Created on: 4 Apr 2022
  *      Author: ondra
  */
 
-#ifndef GLOBALS_H_
-#define GLOBALS_H_
+#ifndef APPLICATION_H_
+#define APPLICATION_H_
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -19,6 +19,7 @@
 #define T_15 (1.5 * (11 * 1000000 / BAUD_RATE))
 #define T_15_CYCLES (T_15 * (FREQ / 1000000))
 #define FIND_SEND_MSG_DELAY FREQ/5
+#define CONTEXT_SWITCH_DELAY FREQ/5
 
 
 typedef enum {FIND, MENU, DOSE, DOSE_RATE} context_state;
@@ -29,4 +30,7 @@ extern uint16_t buffer_position;
 extern volatile uint8_t device_address;
 extern dev_id device_id;
 
-#endif /* GLOBALS_H_ */
+void start_context_switch();
+void context_switch_done();
+
+#endif /* APPLICATION_H_ */

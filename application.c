@@ -1,3 +1,4 @@
+#include "application.h"
 #include <stdlib.h>
 #include "ti/devices/msp432e4/driverlib/driverlib.h"
 #include <ti/devices/msp432e4/driverlib/gpio.h>
@@ -9,7 +10,6 @@
 #include <ti/drivers/uart/UARTMSP432E4.h>
 #include "communication.h"
 #include "crc.h"
-#include "globals.h"
 #include "gui.h"
 #include "mdg04.h"
 
@@ -17,7 +17,27 @@ volatile comm_states comm_state = SEND_MESSAGE;
 volatile context_state current_context = FIND;
 volatile context_state old_context = FIND;
 volatile uint8_t device_address = 0xf2;
+uint8_t *buffer;
+uint16_t buffer_position = 0;
+dev_id device_id = {0};
 
+void context_switch_done() {
+    TimerIntClear(TIMER1_BASE, TIMER_TIMA_TIMEOUT);
+    buffer_position = 0;
+    reset_buffer();
+    UARTIntClear(UART6_BASE, UARTIntStatus(UART6_BASE, true));
+    UARTIntEnable(UART6_BASE, UART_INT_RX | UART_INT_TX);
+    old_context = current_context;
+    comm_state = SEND_MESSAGE;
+}
+
+void start_context_switch() {
+    TimerDisable(TIMER0_BASE, TIMER_A);
+    UARTIntDisable(UART6_BASE, UART_INT_RX | UART_INT_TX);
+    TimerIntRegister(TIMER0_BASE, TIMER_A, context_switch_done);
+    TimerLoadSet(TIMER0_BASE, TIMER_A, CONTEXT_SWITCH_DELAY);
+    TimerEnable(TIMER0_BASE, TIMER_A);
+}
 
 /* UART interrupt handler */
 void UART6_IRQHandler(void) {
