@@ -20,6 +20,7 @@ volatile uint8_t device_address = 0x01;
 uint8_t *buffer;
 uint16_t buffer_position = 0;
 dev_id device_id = {0};
+ch_val ch_value = {0};
 volatile int random = 0;
 
 void TIMER1A_IRQHandler();
