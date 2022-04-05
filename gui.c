@@ -95,6 +95,16 @@ int32_t touchcallback(uint32_t message, int32_t x, int32_t y) {
             current_context = FIND;
             comm_state = IDLE;
             device_address = 0x01;
+            memset(&device_id, 0, sizeof(dev_id));
+            menu_dose_button.active = false;
+            menu_dose_rate_button.active = false;
+            menu_find_button.active = false;
+            start_context_switch();
+        }
+        if (menu_dose_button.active && button_was_pressed(&menu_dose_button, x, y)) {
+            clr_screen = true;
+            current_context = DOSE;
+            comm_state = IDLE;
             menu_dose_button.active = false;
             menu_dose_rate_button.active = false;
             menu_find_button.active = false;
