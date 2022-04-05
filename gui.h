@@ -46,7 +46,8 @@ void _init_display_find();
 void _update_display_find(bool found);
 void _init_display_menu();
 void _update_display_menu();
-// TODO: Add other contexts
+void _init_display_dose();
+void _update_display_dose();
 
 void draw_button(button *b);
 

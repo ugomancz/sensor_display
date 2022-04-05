@@ -143,6 +143,13 @@ void update_display() {
         } else {
             _update_display_menu();
         }
+        break;
+    case DOSE:
+        if (clr_screen) {
+            _init_display_dose();
+        } else {
+            //_update_display_dose();
+        }
     }
     clr_screen = false;
 }
@@ -198,7 +205,6 @@ void _init_display_menu() {
     to_menu_button.active = false;
     int8_t string_buffer[40];
     Graphics_setFont(&g_context, &g_sFontCm24b);
-    Graphics_setForegroundColor(&g_context, GRAPHICS_COLOR_WHITE);
     Graphics_drawString(&g_context, "Menu", -1, 4, 9, false);
     Graphics_drawLineH(&g_context, 1, 320, 40);
     Graphics_setForegroundColor(&g_context, GRAPHICS_COLOR_WHITE);
@@ -231,7 +237,7 @@ void _init_display_menu() {
 }
 
 void _update_display_menu() {
-    if (ch_value.val != 0) {
+    if (ch_value.val != 0.0f) {
         const Graphics_Rectangle hide_temp = {.xMin = 68, .yMin = 150, .xMax = 180, .yMax = 175};
         int8_t string_buffer[20] = {0};
         sprintf((char *) &string_buffer, "%0.2f deg. C", ch_value.val);
@@ -243,6 +249,38 @@ void _update_display_menu() {
         Graphics_setForegroundColor(&g_context, GRAPHICS_COLOR_WHITE);
         Graphics_drawString(&g_context, string_buffer, -1, 70, 150, false);
     }
+}
+
+void _init_display_dose() {
+    int8_t string_buffer[40] = {0};
+    Graphics_setForegroundColor(&g_context, GRAPHICS_COLOR_WHITE);
+    Graphics_setFont(&g_context, &g_sFontCm24b);
+    Graphics_drawString(&g_context, "Dose", -1, 4, 9, false);
+    Graphics_drawLineH(&g_context, 1, 320, 40);
+
+    Graphics_setFont(&g_context, &g_sFontCm48b);
+    sprintf((char *) &string_buffer, "%0.3f", ch_value.val);
+    Graphics_drawString(&g_context, string_buffer, -1, 4, 60, false);
+    Graphics_setFont(&g_context, &g_sFontCm32b);
+    Graphics_drawString(&g_context, "Gy", -1, 140, 70, false);
+
+    Graphics_setFont(&g_context, &g_sFontCm22b);
+    Graphics_drawString(&g_context, "Last minute extremes:", -1, 4, 120, false);
+
+    Graphics_setFont(&g_context, &g_sFontCm20b);
+    memset(&string_buffer, 0, 40);
+    sprintf((char *) &string_buffer, "%0.3f", ch_value.val); // TODO: implement value history
+    Graphics_drawString(&g_context, string_buffer, -1, 58, 155, false);
+    Graphics_drawString(&g_context, "Min:", -1, 4, 155, false);
+    Graphics_drawString(&g_context, "Gy", -1, 115, 155, false);
+
+    memset(&string_buffer, 0, 40);
+    sprintf((char *) &string_buffer, "%0.3f", ch_value.val); // TODO: implement value history
+    Graphics_drawString(&g_context, string_buffer, -1, 58, 180, false);
+    Graphics_drawString(&g_context, "Max:", -1, 4, 180, false);
+    Graphics_drawString(&g_context, "Gy", -1, 115, 180, false);
+
+    draw_button(&to_menu_button);
 }
 
 void draw_button(button *b) {
