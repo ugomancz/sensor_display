@@ -16,8 +16,7 @@
 
 #define FREQ 120000000
 #define BAUD_RATE 9600
-#define T_15 (1.5 * (11 * 1000000 / BAUD_RATE))
-#define T_15_CYCLES (T_15 * (FREQ / 1000000))
+#define T_15_CYCLES ((1.5 * (11 * 1000000 / BAUD_RATE)) * (FREQ / 1000000))
 #define SEND_MSG_DELAY FREQ
 #define FIND_SEND_MSG_DELAY FREQ/5
 #define CONTEXT_SWITCH_DELAY FREQ/5
@@ -29,7 +28,6 @@ extern volatile context_state current_context;
 extern uint8_t *buffer;
 extern uint16_t buffer_position;
 extern volatile uint8_t device_address;
-extern volatile uint8_t old_address;
 extern dev_id device_id;
 
 void start_context_switch();
