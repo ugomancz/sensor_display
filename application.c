@@ -16,7 +16,7 @@
 volatile comm_states comm_state = SEND_MESSAGE;
 volatile context_state current_context = FIND;
 volatile context_state old_context = FIND;
-volatile uint8_t device_address = 0xf2;
+volatile uint8_t device_address = 0x01;
 uint8_t *buffer;
 uint16_t buffer_position = 0;
 dev_id device_id = {0};
@@ -35,7 +35,11 @@ void context_switch_done() {
     comm_state = SEND_MESSAGE;
     TimerDisable(TIMER1_BASE, TIMER_A);
     TimerIntRegister(TIMER1_BASE, TIMER_A, TIMER1A_IRQHandler);
-    TimerLoadSet(TIMER1_BASE, TIMER_A, SEND_MSG_DELAY);
+    if (current_context == FIND) {
+        TimerLoadSet(TIMER1_BASE, TIMER_A, FIND_SEND_MSG_DELAY);
+    } else {
+        TimerLoadSet(TIMER1_BASE, TIMER_A, SEND_MSG_DELAY);
+    }
     TimerEnable(TIMER1_BASE, TIMER_A);
 }
 
@@ -88,7 +92,7 @@ void TIMER1A_IRQHandler(void) {
     TimerIntClear(TIMER1_BASE, TIMER_TIMA_TIMEOUT);
     comm_state = SEND_MESSAGE;
     if (current_context == FIND) {
-        if (device_address == 247) {
+        if (device_address >= 247) {
             device_address = 0;
         }
         ++device_address;

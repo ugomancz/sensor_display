@@ -89,6 +89,15 @@ int32_t touchcallback(uint32_t message, int32_t x, int32_t y) {
             TimerLoadSet(TIMER1_BASE, TIMER_A, FIND_SEND_MSG_DELAY);
             TimerEnable(TIMER1_BASE, TIMER_A);
         }
+        if (menu_find_button.active && button_was_pressed(&menu_find_button, x, y)) {
+            clr_screen = true;
+            current_context = FIND;
+            device_address = 0x01;
+            menu_dose_button.active = false;
+            menu_dose_rate_button.active = false;
+            menu_find_button.active = false;
+            start_context_switch();
+        }
     }
     return 0;
 }
@@ -127,18 +136,21 @@ void _init_display_find() {
     Graphics_drawString(&g_context, "Scanning address:", -1, 4, 60, false);
     sprintf((char *) &string_buffer, "0x%02x", device_address);
     Graphics_drawString(&g_context, string_buffer, -1, 220, 60, false);
-    draw_button(&to_menu_button);
+    //draw_button(&to_menu_button);
 }
 
 void _update_display_find(bool found) {
     const Graphics_Rectangle hide_address = {.xMin = 218, .yMin = 55, .xMax = 300, .yMax = 80};
     const Graphics_Rectangle hide_found = {.xMin = 0, .yMin = 85, .xMax = 319, .yMax = 239};
+    int8_t string_buffer[40];
 
     Graphics_setForegroundColor(&g_context, GRAPHICS_COLOR_BLACK);
     Graphics_fillRectangle(&g_context, &hide_address);
-    _init_display_find();
+
+    Graphics_setForegroundColor(&g_context, GRAPHICS_COLOR_WHITE);
+    sprintf((char *) &string_buffer, "0x%02x", device_address);
+    Graphics_drawString(&g_context, string_buffer, -1, 220, 60, false);
     if (found) {
-        int8_t string_buffer[40];
         Graphics_setFont(&g_context, &g_sFontCm22b);
         Graphics_setForegroundColor(&g_context, GRAPHICS_COLOR_WHITE);
 
@@ -157,6 +169,7 @@ void _update_display_find(bool found) {
         draw_button(&find_accept_button);
         draw_button(&find_reject_button);
     } else {
+        Graphics_setForegroundColor(&g_context, GRAPHICS_COLOR_BLACK);
         Graphics_fillRectangle(&g_context, &hide_found);
     }
 }

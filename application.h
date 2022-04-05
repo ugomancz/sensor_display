@@ -29,6 +29,7 @@ extern volatile context_state current_context;
 extern uint8_t *buffer;
 extern uint16_t buffer_position;
 extern volatile uint8_t device_address;
+extern volatile uint8_t old_address;
 extern dev_id device_id;
 
 void start_context_switch();
