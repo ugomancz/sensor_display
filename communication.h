@@ -31,7 +31,7 @@ void send_message();
 
 /* Sends a specific message to the sensor. Used internally by send_message() */
 void _get_dev_id();
-
+void _get_dev_temp();
 
 /* Top level function to parse received messages based on the current context */
 void parse_received();
