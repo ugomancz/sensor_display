@@ -5,6 +5,7 @@
  *      Author: ondra
  */
 #include "mdg04.h"
+#include <math.h>
 #include <string.h>
 #include <stdio.h>
 
@@ -21,11 +22,11 @@ void switch_string_endianity(uint8_t *s) {
 void switch_float_endianity(float * const f) {
     uint8_t * const f_array = (uint8_t *) f;
     uint8_t temp = f_array[0];
-    f_array[0] = f_array[3];
-    f_array[3] = temp;
-    temp = f_array[2];
-    f_array[2] = f_array[1];
+    f_array[0] = f_array[1];
     f_array[1] = temp;
+    temp = f_array[2];
+    f_array[2] = f_array[3];
+    f_array[3] = temp;
 }
 
 void format_hw_id(int8_t *buffer, uint32_t id) {
