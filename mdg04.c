@@ -8,7 +8,7 @@
 #include <string.h>
 #include <stdio.h>
 
-void switch_endianity(uint8_t *s) {
+void switch_string_endianity(uint8_t *s) {
     int l = (strlen((char *) s) + 1)/2;
     uint8_t temp = 0;
     for (int i = 0; i < l; i++) {
@@ -16,6 +16,16 @@ void switch_endianity(uint8_t *s) {
         s[2*i+1] = s[2*i];
         s[2*i] = temp;
     }
+}
+
+void switch_float_endianity(float * const f) {
+    uint8_t * const f_array = (uint8_t *) f;
+    uint8_t temp = f_array[0];
+    f_array[0] = f_array[3];
+    f_array[3] = temp;
+    temp = f_array[2];
+    f_array[2] = f_array[1];
+    f_array[1] = temp;
 }
 
 void format_hw_id(int8_t *buffer, uint32_t id) {

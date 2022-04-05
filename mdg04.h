@@ -36,7 +36,7 @@ typedef union {
 } ch_val_ts;
 
 typedef struct {
-    ch_val_val val;
+    float val;
     uint32_t sta;
     uint32_t asi;
     ch_val_ts ts;
@@ -44,7 +44,8 @@ typedef struct {
     uint16_t _res;
 } ch_val;
 
-void switch_endianity(uint8_t *s);
+void switch_string_endianity(uint8_t *s);
+void switch_float_endianity(float *f);
 void format_hw_id(int8_t *buffer, uint32_t id);
 void format_sw_id(int8_t *buffer, uint32_t id);
 
