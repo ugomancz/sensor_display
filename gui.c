@@ -135,12 +135,12 @@ void _init_display_find() {
     Graphics_setFont(&g_context, &g_sFontCm22b);
     Graphics_drawString(&g_context, "Scanning address:", -1, 4, 60, false);
     sprintf((char *) &string_buffer, "0x%02x", device_address);
-    Graphics_drawString(&g_context, string_buffer, -1, 220, 60, false);
+    Graphics_drawString(&g_context, string_buffer, -1, 200, 60, false);
     //draw_button(&to_menu_button);
 }
 
 void _update_display_find(bool found) {
-    const Graphics_Rectangle hide_address = {.xMin = 218, .yMin = 55, .xMax = 300, .yMax = 80};
+    const Graphics_Rectangle hide_address = {.xMin = 200, .yMin = 55, .xMax = 280, .yMax = 80};
     const Graphics_Rectangle hide_found = {.xMin = 0, .yMin = 85, .xMax = 319, .yMax = 239};
     int8_t string_buffer[40];
 
@@ -149,7 +149,7 @@ void _update_display_find(bool found) {
 
     Graphics_setForegroundColor(&g_context, GRAPHICS_COLOR_WHITE);
     sprintf((char *) &string_buffer, "0x%02x", device_address);
-    Graphics_drawString(&g_context, string_buffer, -1, 220, 60, false);
+    Graphics_drawString(&g_context, string_buffer, -1, 200, 60, false);
     if (found) {
         Graphics_setFont(&g_context, &g_sFontCm22b);
         Graphics_setForegroundColor(&g_context, GRAPHICS_COLOR_WHITE);
