@@ -78,6 +78,7 @@ int32_t touchcallback(uint32_t message, int32_t x, int32_t y) {
         if (to_menu_button.active && button_was_pressed(&to_menu_button, x, y) || (find_accept_button.active && button_was_pressed(&find_accept_button, x, y))) {
             clr_screen = true;
             current_context = MENU;
+            comm_state = IDLE;
             find_accept_button.active = false;
             find_reject_button.active = false;
             start_context_switch();
@@ -92,6 +93,7 @@ int32_t touchcallback(uint32_t message, int32_t x, int32_t y) {
         if (menu_find_button.active && button_was_pressed(&menu_find_button, x, y)) {
             clr_screen = true;
             current_context = FIND;
+            comm_state = IDLE;
             device_address = 0x01;
             menu_dose_button.active = false;
             menu_dose_rate_button.active = false;
@@ -120,7 +122,7 @@ void update_display() {
         if (clr_screen) {
             _init_display_menu();
         } else {
-            //_update_display_menu();
+            _update_display_menu();
         }
     }
     clr_screen = false;
@@ -136,7 +138,6 @@ void _init_display_find() {
     Graphics_drawString(&g_context, "Scanning address:", -1, 4, 60, false);
     sprintf((char *) &string_buffer, "0x%02x", device_address);
     Graphics_drawString(&g_context, string_buffer, -1, 200, 60, false);
-    //draw_button(&to_menu_button);
 }
 
 void _update_display_find(bool found) {
@@ -202,14 +203,27 @@ void _init_display_menu() {
 
     sprintf((char *) &string_buffer,  "SW Ver.: %02d.%02d", (device_id.sw_ver >> 8), (char) device_id.sw_ver);
     Graphics_drawString(&g_context, string_buffer, -1, 4, 130, false);
-    memset(string_buffer, 0, 40);
 
-    sprintf((char *) &string_buffer,  "Temp: %d°C", 23); // TODO: Replace for real value.
-    Graphics_drawString(&g_context, string_buffer, -1, 4, 150, false);
+    Graphics_drawString(&g_context, "Temp:", -1, 4, 150, false);
 
     draw_button(&menu_dose_button);
     draw_button(&menu_dose_rate_button);
     draw_button(&menu_find_button);
+}
+
+void _update_display_menu() {
+    if (ch_value.val != 0) {
+        const Graphics_Rectangle hide_temp = {.xMin = 68, .yMin = 150, .xMax = 180, .yMax = 175};
+        int8_t string_buffer[20] = {0};
+        sprintf((char *) &string_buffer, "%0.2f deg. C", ch_value.val);
+        Graphics_setFont(&g_context, &g_sFontCm20);
+
+        Graphics_setForegroundColor(&g_context, GRAPHICS_COLOR_BLACK);
+        Graphics_fillRectangle(&g_context, &hide_temp);
+
+        Graphics_setForegroundColor(&g_context, GRAPHICS_COLOR_WHITE);
+        Graphics_drawString(&g_context, string_buffer, -1, 70, 150, false);
+    }
 }
 
 void draw_button(button *b) {
