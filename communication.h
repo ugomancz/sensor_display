@@ -33,6 +33,7 @@ void send_message();
 void _get_dev_id();
 void _get_dev_temp();
 void _get_dev_dose();
+void _get_dev_dose_rate();
 
 /* Top level function to parse received messages based on the current context */
 void parse_received();

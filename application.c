@@ -1,5 +1,6 @@
 #include "application.h"
 #include <stdlib.h>
+#include <string.h>
 #include "ti/devices/msp432e4/driverlib/driverlib.h"
 #include <ti/devices/msp432e4/driverlib/gpio.h>
 #include <ti/devices/msp432e4/driverlib/interrupt.h>
@@ -21,15 +22,13 @@ uint8_t *buffer;
 uint16_t buffer_position = 0;
 dev_id device_id = {0};
 ch_val ch_value = {0};
-volatile int random = 0;
 
 void TIMER1A_IRQHandler();
 
 void context_switch_done() {
-    ++random;
     TimerIntClear(TIMER1_BASE, TIMER_TIMA_TIMEOUT);
-    buffer_position = 0;
     reset_buffer();
+    memset(&ch_value, 0, sizeof(ch_value));
     UARTIntClear(UART6_BASE, UARTIntStatus(UART6_BASE, true));
     UARTIntEnable(UART6_BASE, UART_INT_RX | UART_INT_TX);
     old_context = current_context;
