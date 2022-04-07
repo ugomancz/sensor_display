@@ -23,6 +23,9 @@ void send_message() {
     case MENU:
         _get_dev_temp();
         break;
+    case DOSE:
+        _get_dev_dose();
+        break;
     }
 }
 
@@ -46,6 +49,15 @@ void _get_dev_temp() {
     UARTCharPut(UART6_BASE, (uint8_t) (crc >> 8));
 }
 
+void _get_dev_dose() {
+    const uint8_t message[] = {device_address, 0x04, 0x01, 0x0A, 0x00, 0x0A};
+    const uint16_t crc = get_crc(message, 6);
+    for (short i = 0; i < 6; ++i) {
+        UARTCharPut(UART6_BASE, message[i]);
+    }
+    UARTCharPut(UART6_BASE, (uint8_t) crc);
+    UARTCharPut(UART6_BASE, (uint8_t) (crc >> 8));
+}
 
 void parse_received() {
     /* Check correct device address, function code and message length */
@@ -64,13 +76,20 @@ void parse_received() {
             memcpy(&device_id, buffer + 3, buffer[2]);
             switch_string_endianity(device_id.pr_id);
             switch_string_endianity(device_id.pr_name);
+            reset_buffer();
             break;
         case MENU:
             memcpy(&ch_value, buffer + 3, buffer[2]);
             switch_float_endianity(&(ch_value.val));
+            reset_buffer();
+            break;
+        case DOSE:
+            memcpy(&ch_value, buffer + 3, buffer[2]);
+            switch_float_endianity(&(ch_value.val));
+            reset_buffer();
             break;
     }
-    reset_buffer();
+
 }
 
 void reset_buffer() {
