@@ -262,7 +262,7 @@ void _init_display_dose() {
     sprintf((char *) &string_buffer, "%0.3f", ch_value.val);
     Graphics_drawString(&g_context, string_buffer, -1, 4, 60, false);
     Graphics_setFont(&g_context, &g_sFontCm32b);
-    Graphics_drawString(&g_context, "Gy", -1, 140, 70, false);
+    Graphics_drawString(&g_context, "Gy", -1, 115, 70, false);
 
     Graphics_setFont(&g_context, &g_sFontCm22b);
     Graphics_drawString(&g_context, "Last minute extremes:", -1, 4, 120, false);
@@ -286,7 +286,7 @@ void _init_display_dose() {
 void _update_display_dose() {
     int8_t string_buffer[40] = {0};
 
-    const Graphics_Rectangle hide_current = {.xMin = 4, .yMin = 45, .xMax = 135, .yMax = 100};
+    const Graphics_Rectangle hide_current = {.xMin = 4, .yMin = 45, .xMax = 112, .yMax = 100};
     const Graphics_Rectangle hide_min_max = {.xMin = 55, .yMin = 145, .xMax = 112, .yMax = 195};
     Graphics_setForegroundColor(&g_context, GRAPHICS_COLOR_BLACK);
     Graphics_fillRectangle(&g_context, &hide_current);
