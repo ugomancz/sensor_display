@@ -48,6 +48,8 @@ void _init_display_menu();
 void _update_display_menu();
 void _init_display_dose();
 void _update_display_dose();
+void _init_display_dose_rate();
+void _update_display_dose_rate();
 
 void draw_button(button *b);
 

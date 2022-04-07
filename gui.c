@@ -81,6 +81,7 @@ int32_t touchcallback(uint32_t message, int32_t x, int32_t y) {
             comm_state = IDLE;
             find_accept_button.active = false;
             find_reject_button.active = false;
+            to_menu_button.active = false;
             start_context_switch();
         }
         if (find_reject_button.active && button_was_pressed(&find_reject_button, x, y)) {
@@ -149,6 +150,12 @@ void update_display() {
             _init_display_dose();
         } else {
             _update_display_dose();
+        }
+    case DOSE_RATE:
+        if (clr_screen) {
+            _init_display_dose_rate();
+        } else {
+            _update_display_dose_rate();
         }
     }
     clr_screen = false;
@@ -284,6 +291,62 @@ void _init_display_dose() {
 }
 
 void _update_display_dose() {
+    int8_t string_buffer[40] = {0};
+
+    const Graphics_Rectangle hide_current = {.xMin = 4, .yMin = 45, .xMax = 112, .yMax = 100};
+    const Graphics_Rectangle hide_min_max = {.xMin = 55, .yMin = 145, .xMax = 112, .yMax = 195};
+    Graphics_setForegroundColor(&g_context, GRAPHICS_COLOR_BLACK);
+    Graphics_fillRectangle(&g_context, &hide_current);
+    Graphics_fillRectangle(&g_context, &hide_min_max);
+
+    Graphics_setForegroundColor(&g_context, GRAPHICS_COLOR_WHITE);
+    Graphics_setFont(&g_context, &g_sFontCm48b);
+    sprintf((char *) &string_buffer, "%0.3f", ch_value.val);
+    Graphics_drawString(&g_context, string_buffer, -1, 4, 60, false);
+
+    Graphics_setFont(&g_context, &g_sFontCm20b);
+    memset(&string_buffer, 0, 40);
+    sprintf((char *) &string_buffer, "%0.3f", ch_value.val); // TODO: implement value history
+    Graphics_drawString(&g_context, string_buffer, -1, 58, 155, false);
+
+    memset(&string_buffer, 0, 40);
+    sprintf((char *) &string_buffer, "%0.3f", ch_value.val); // TODO: implement value history
+    Graphics_drawString(&g_context, string_buffer, -1, 58, 180, false);
+}
+
+void _init_display_dose_rate() {
+    int8_t string_buffer[40] = {0};
+    Graphics_setForegroundColor(&g_context, GRAPHICS_COLOR_WHITE);
+    Graphics_setFont(&g_context, &g_sFontCm24b);
+    Graphics_drawString(&g_context, "Dose Rate", -1, 4, 9, false);
+    Graphics_drawLineH(&g_context, 1, 320, 40);
+
+    Graphics_setFont(&g_context, &g_sFontCm48b);
+    sprintf((char *) &string_buffer, "%0.3f", ch_value.val);
+    Graphics_drawString(&g_context, string_buffer, -1, 4, 60, false);
+    Graphics_setFont(&g_context, &g_sFontCm32b);
+    Graphics_drawString(&g_context, "Gy", -1, 115, 70, false);
+
+    Graphics_setFont(&g_context, &g_sFontCm22b);
+    Graphics_drawString(&g_context, "Last minute extremes:", -1, 4, 120, false);
+
+    Graphics_setFont(&g_context, &g_sFontCm20b);
+    memset(&string_buffer, 0, 40);
+    sprintf((char *) &string_buffer, "%0.3f", ch_value.val); // TODO: implement value history
+    Graphics_drawString(&g_context, string_buffer, -1, 58, 155, false);
+    Graphics_drawString(&g_context, "Min:", -1, 4, 155, false);
+    Graphics_drawString(&g_context, "Gy/h", -1, 115, 155, false);
+
+    memset(&string_buffer, 0, 40);
+    sprintf((char *) &string_buffer, "%0.3f", ch_value.val); // TODO: implement value history
+    Graphics_drawString(&g_context, string_buffer, -1, 58, 180, false);
+    Graphics_drawString(&g_context, "Max:", -1, 4, 180, false);
+    Graphics_drawString(&g_context, "Gy/h", -1, 115, 180, false);
+
+    draw_button(&to_menu_button);
+}
+
+void _update_display_dose_rate() {
     int8_t string_buffer[40] = {0};
 
     const Graphics_Rectangle hide_current = {.xMin = 4, .yMin = 45, .xMax = 112, .yMax = 100};
