@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<?ccsproject version="1.0"?>
+<projectOptions>
+	<ccsVersion value="11.1.0"/>
+	<deviceVariant value="MSP432E411Y"/>
+	<deviceFamily value="MSP432"/>
+	<deviceEndianness value="little"/>
+	<codegenToolVersion value="20.2.5.LTS"/>
+	<isElfFormat value="true"/>
+	<connection value="common/targetdb/connections/TIXDS2XXUSB_Connection.xml"/>
+	<rts value=""/>
+	<createSlaveProjects value=""/>
+	<ignoreDefaultDeviceSettings value="true"/>
+	<ignoreDefaultCCSSettings value="true"/>
+	<templateProperties value="id=kentec_lcd_MSP432E411Y_BGAEVM_nortos_ccs.projectspec.kentec_lcd_MSP432E411Y_BGAEVM_nortos_ccs,buildProfile=release,isHybrid=true"/>
+	<origin value="C:\ti\simplelink_msp432e4_sdk_4_20_00_12\examples\nortos\MSP432E411Y_BGAEVM\grlib\kentec_lcd\ccs\kentec_lcd_MSP432E411Y_BGAEVM_nortos_ccs.projectspec"/>
+	<filesToOpen value=""/>
+	<isTargetManual value="false"/>
+	<sourceLookupPath value="${COM_TI_SIMPLELINK_MSP432E4_SDK_INSTALL_DIR}/source/ti/grlib/lib/ccs/m4f/"/>
+</projectOptions>
