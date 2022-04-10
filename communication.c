@@ -7,6 +7,7 @@
 #include "communication.h"
 #include "application.h"
 #include "crc.h"
+#include "history.h"
 #include <ti/devices/msp432e4/driverlib/gpio.h>
 #include <ti/devices/msp432e4/driverlib/interrupt.h>
 #include <ti/devices/msp432e4/driverlib/uart.h>
@@ -101,6 +102,7 @@ void parse_received() {
     case DOSE_RATE:
         memcpy(&ch_value, buffer + 3, buffer[2]);
         switch_float_endianity(&(ch_value.val));
+        add_value_to_history(ch_value.val);
         reset_buffer();
         break;
     }

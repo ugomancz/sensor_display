@@ -8,6 +8,7 @@
 #include "application.h"
 #include "communication.h"
 #include "gui.h"
+#include "history.h"
 #include "touch.h"
 #include <ti/devices/msp432e4/driverlib/driverlib.h>
 #include <ti/devices/msp432e4/inc/msp432e411y.h>
@@ -17,6 +18,7 @@ void context_switch_timeout_handler() {
     TimerDisable(TIMER1_BASE, TIMER_A);
     TimerIntClear(TIMER1_BASE, TIMER_TIMA_TIMEOUT);
     reset_buffer();
+    reset_history();
     memset(&ch_value, 0, sizeof(ch_value));
     UARTIntClear(UART6_BASE, UARTIntStatus(UART6_BASE, true));
 

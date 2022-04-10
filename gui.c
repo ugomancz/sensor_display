@@ -7,6 +7,7 @@
 #include "gui.h"
 #include "application.h"
 #include "communication.h"
+#include "history.h"
 #include "mdg04.h"
 #include <ti/devices/msp432e4/driverlib/driverlib.h>
 #include <stdio.h>
@@ -287,13 +288,13 @@ void _init_display_dose() {
     Graphics_setFont(&g_context, &g_sFontCm20b);
 
     memset(&string_buffer, 0, 20);
-    sprintf((char*) &string_buffer, "%0.2e", ch_value.val); // TODO: implement value history
+    sprintf((char*) &string_buffer, "%0.2e", get_history_min());
     Graphics_drawString(&g_context, string_buffer, -1, 58, 155, false);
     Graphics_drawString(&g_context, "Min:", -1, 4, 155, false);
     Graphics_drawString(&g_context, "Gy", -1, 150, 155, false);
 
     memset(&string_buffer, 0, 20);
-    sprintf((char*) &string_buffer, "%0.2e", ch_value.val); // TODO: implement value history
+    sprintf((char*) &string_buffer, "%0.2e", get_history_max());
     Graphics_drawString(&g_context, string_buffer, -1, 58, 180, false);
     Graphics_drawString(&g_context, "Max:", -1, 4, 180, false);
     Graphics_drawString(&g_context, "Gy", -1, 150, 180, false);
@@ -319,11 +320,11 @@ void _update_display_dose() {
     Graphics_setFont(&g_context, &g_sFontCm20b);
 
     memset(&string_buffer, 0, 20);
-    sprintf((char*) &string_buffer, "%0.2e", ch_value.val); // TODO: implement value history
+    sprintf((char*) &string_buffer, "%0.2e", get_history_min());
     Graphics_drawString(&g_context, string_buffer, -1, 58, 155, false);
 
     memset(&string_buffer, 0, 20);
-    sprintf((char*) &string_buffer, "%0.2e", ch_value.val); // TODO: implement value history
+    sprintf((char*) &string_buffer, "%0.2e", get_history_max());
     Graphics_drawString(&g_context, string_buffer, -1, 58, 180, false);
 }
 
@@ -348,13 +349,13 @@ void _init_display_dose_rate() {
     Graphics_setFont(&g_context, &g_sFontCm20b);
 
     memset(&string_buffer, 0, 20);
-    sprintf((char*) &string_buffer, "%0.2e", ch_value.val); // TODO: implement value history
+    sprintf((char*) &string_buffer, "%0.2e", get_history_min());
     Graphics_drawString(&g_context, string_buffer, -1, 58, 155, false);
     Graphics_drawString(&g_context, "Min:", -1, 4, 155, false);
     Graphics_drawString(&g_context, "Gy/h", -1, 150, 155, false);
 
     memset(&string_buffer, 0, 20);
-    sprintf((char*) &string_buffer, "%0.2e", ch_value.val); // TODO: implement value history
+    sprintf((char*) &string_buffer, "%0.2e", get_history_max());
     Graphics_drawString(&g_context, string_buffer, -1, 58, 180, false);
     Graphics_drawString(&g_context, "Max:", -1, 4, 180, false);
     Graphics_drawString(&g_context, "Gy/h", -1, 150, 180, false);
@@ -380,11 +381,11 @@ void _update_display_dose_rate() {
     Graphics_setFont(&g_context, &g_sFontCm20b);
 
     memset(&string_buffer, 0, 20);
-    sprintf((char*) &string_buffer, "%0.2e", ch_value.val); // TODO: implement value history
+    sprintf((char*) &string_buffer, "%0.2e", get_history_min());
     Graphics_drawString(&g_context, string_buffer, -1, 58, 155, false);
 
     memset(&string_buffer, 0, 20);
-    sprintf((char*) &string_buffer, "%0.2e", ch_value.val); // TODO: implement value history
+    sprintf((char*) &string_buffer, "%0.2e", get_history_max());
     Graphics_drawString(&g_context, string_buffer, -1, 58, 180, false);
 }
 
