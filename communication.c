@@ -111,5 +111,5 @@ void parse_received() {
 
 void reset_buffer() {
     buffer_position = 0;
-    memset(buffer, 0, 256);
+    memset(buffer, 0, RX_BUFFER_SIZE);
 }

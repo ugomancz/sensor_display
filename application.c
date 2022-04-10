@@ -123,7 +123,7 @@ int main(void) {
     TimerIntEnable(TIMER1_BASE, TIMER_TIMA_TIMEOUT);
 
     /* Allocate the buffer for incoming data */
-    if ((buffer = calloc(256, sizeof(uint8_t))) == NULL) {
+    if ((buffer = calloc(RX_BUFFER_SIZE, sizeof(uint8_t))) == NULL) {
         exit(EXIT_FAILURE);
     }
 
