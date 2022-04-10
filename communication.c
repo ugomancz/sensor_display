@@ -1,21 +1,26 @@
-#include <communication.h>
+/*
+ * communication.c
+ *
+ *  Created on: 26 Jan 2022
+ *      Author: ondra
+ */
+#include "communication.h"
+#include "application.h"
+#include "crc.h"
 #include <ti/devices/msp432e4/driverlib/gpio.h>
 #include <ti/devices/msp432e4/driverlib/interrupt.h>
-#include <ti/devices/msp432e4/inc/msp432e411y.h>
 #include <ti/devices/msp432e4/driverlib/uart.h>
+#include <ti/devices/msp432e4/inc/msp432e411y.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "crc.h"
-#include "application.h"
 
-
-void set_direction(direction dir) {
+void set_comm_direction(direction dir) {
     GPIOPinWrite(GPIO_PORTH_BASE, GPIO_PIN_4, (dir == TRANSMIT) ? 0xFF : 0x00);
 }
 
 void send_message() {
-    set_direction(TRANSMIT);
+    set_comm_direction(TRANSMIT);
     switch (current_context) {
     case FIND:
         _get_dev_id();
@@ -33,7 +38,7 @@ void send_message() {
 }
 
 void _get_dev_id() {
-    const uint8_t message[] = {device_address, 0x04, 0x00, 0x00, 0x00, 0x24};
+    const uint8_t message[] = { device_address, 0x04, 0x00, 0x00, 0x00, 0x24 };
     const uint16_t crc = get_crc(message, 6);
     for (short i = 0; i < 6; ++i) {
         UARTCharPut(UART6_BASE, message[i]);
@@ -43,7 +48,7 @@ void _get_dev_id() {
 }
 
 void _get_dev_temp() {
-    const uint8_t message[] = {device_address, 0x04, 0x01, 0x14, 0x00, 0x0A};
+    const uint8_t message[] = { device_address, 0x04, 0x01, 0x14, 0x00, 0x0A };
     const uint16_t crc = get_crc(message, 6);
     for (short i = 0; i < 6; ++i) {
         UARTCharPut(UART6_BASE, message[i]);
@@ -53,7 +58,7 @@ void _get_dev_temp() {
 }
 
 void _get_dev_dose() {
-    const uint8_t message[] = {device_address, 0x04, 0x01, 0x0A, 0x00, 0x0A};
+    const uint8_t message[] = { device_address, 0x04, 0x01, 0x0A, 0x00, 0x0A };
     const uint16_t crc = get_crc(message, 6);
     for (short i = 0; i < 6; ++i) {
         UARTCharPut(UART6_BASE, message[i]);
@@ -63,7 +68,7 @@ void _get_dev_dose() {
 }
 
 void _get_dev_dose_rate() {
-    const uint8_t message[] = {device_address, 0x04, 0x01, 0x00, 0x00, 0x0A};
+    const uint8_t message[] = { device_address, 0x04, 0x01, 0x00, 0x00, 0x0A };
     const uint16_t crc = get_crc(message, 6);
     for (short i = 0; i < 6; ++i) {
         UARTCharPut(UART6_BASE, message[i]);
@@ -79,25 +84,25 @@ void parse_received() {
         return;
     }
     /* Check CRC */
-    uint16_t message_crc = ((int16_t) buffer[buffer_position-1] << 8)| buffer[buffer_position-2];
+    uint16_t message_crc = ((int16_t) buffer[buffer_position - 1] << 8) | buffer[buffer_position - 2];
     if (message_crc != get_crc(buffer, buffer_position - 2)) {
         reset_buffer();
         return;
     }
     switch (current_context) {
-        case FIND:
-            memcpy(&device_id, buffer + 3, buffer[2]);
-            switch_string_endianity(device_id.pr_id);
-            switch_string_endianity(device_id.pr_name);
-            reset_buffer();
-            break;
-        case MENU:
-        case DOSE:
-        case DOSE_RATE:
-            memcpy(&ch_value, buffer + 3, buffer[2]);
-            switch_float_endianity(&(ch_value.val));
-            reset_buffer();
-            break;
+    case FIND:
+        memcpy(&device_id, buffer + 3, buffer[2]);
+        switch_string_endianity(device_id.pr_id);
+        switch_string_endianity(device_id.pr_name);
+        reset_buffer();
+        break;
+    case MENU:
+    case DOSE:
+    case DOSE_RATE:
+        memcpy(&ch_value, buffer + 3, buffer[2]);
+        switch_float_endianity(&(ch_value.val));
+        reset_buffer();
+        break;
     }
 
 }

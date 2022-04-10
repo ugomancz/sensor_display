@@ -1,6 +1,5 @@
 /*
- * This file contains the declarations of structs which are used in communication
- * with the MDG-04 sensor as per the VF's documentation.
+ * mdg04.h
  *
  *  Created on: 14 Mar 2022
  *      Author: ondra
@@ -26,11 +25,6 @@ typedef struct {
 } dev_id;
 
 typedef union {
-    uint32_t i_val;
-    float f_val;
-} ch_val_val;
-
-typedef union {
     uint32_t time;
     uint32_t counter;
 } ch_val_ts;
@@ -48,7 +42,5 @@ void switch_string_endianity(uint8_t *s);
 void switch_float_endianity(float *f);
 void format_hw_id(int8_t *buffer, uint32_t id);
 void format_sw_id(int8_t *buffer, uint32_t id);
-
-
 
 #endif /* MDG04_H_ */

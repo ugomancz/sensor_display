@@ -38,6 +38,8 @@ extern "C"
 {
 #endif
 
+#include <stdint.h>
+
 extern void Kentec_Init(uint32_t ui32SysClock);
 
 /*
