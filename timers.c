@@ -32,9 +32,11 @@ void context_switch_timeout_handler() {
         TimerLoadSet(TIMER1_BASE, TIMER_A, SEND_MSG_DELAY);
     }
     TimerIntRegister(TIMER1_BASE, TIMER_A, send_msg_timeout_handler);
-    UARTIntEnable(UART6_BASE, UART_INT_RX | UART_INT_TX);
     UARTRxErrorClear(UART6_BASE);
+    UARTIntClear(UART6_BASE, UARTIntStatus(UART6_BASE, true));
+    UARTIntEnable(UART6_BASE, UART_INT_RX | UART_INT_TX);
     TouchScreenCallbackSet(touch_callback);
+    clr_screen = true;
     comm_state = SEND_MESSAGE;
     TimerEnable(TIMER1_BASE, TIMER_A);
 }
