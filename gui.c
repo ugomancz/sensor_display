@@ -17,64 +17,34 @@
 volatile bool clr_screen = true;
 
 /* "Menu" button in top right corner */
-button to_menu_button = {
-        .coords = { .xMin = 248, .yMin = 2, .xMax = 318, .yMax = 37 },
-        .button_color = GRAPHICS_COLOR_LIGHT_GRAY,
-        .text_color = GRAPHICS_COLOR_BLACK,
-        .font = &g_sFontCm22b,
-        .text = "Menu",
-        .active = false
-};
+button to_menu_button = { .coords = { .xMin = 248, .yMin = 2, .xMax = 318, .yMax = 37 }, .button_color =
+        GRAPHICS_COLOR_LIGHT_GRAY, .text_color = GRAPHICS_COLOR_BLACK, .font = &g_sFontCm22b, .text = "Menu", .active =
+        false };
 
 /* "Yes" button within FIND context */
-button find_accept_button = {
-        .coords = { .xMin = 50, .yMin = 180, .xMax = 150, .yMax = 220 },
-        .button_color = GRAPHICS_COLOR_LIGHT_GRAY,
-        .text_color = GRAPHICS_COLOR_BLACK,
-        .font = &g_sFontCm24b,
-        .text = "Yes",
-        .active = false
-};
+button find_accept_button = { .coords = { .xMin = 50, .yMin = 180, .xMax = 150, .yMax = 220 }, .button_color =
+        GRAPHICS_COLOR_LIGHT_GRAY, .text_color = GRAPHICS_COLOR_BLACK, .font = &g_sFontCm24b, .text = "Yes", .active =
+        false };
 
 /* "No" button within FIND context */
-button find_reject_button = {
-        .coords = { .xMin = 170, .yMin = 180, .xMax = 270, .yMax = 220 },
-        .button_color = GRAPHICS_COLOR_LIGHT_GRAY,
-        .text_color = GRAPHICS_COLOR_BLACK,
-        .font = &g_sFontCm24b,
-        .text = "No",
-        .active = false
-};
+button find_reject_button = { .coords = { .xMin = 170, .yMin = 180, .xMax = 270, .yMax = 220 }, .button_color =
+        GRAPHICS_COLOR_LIGHT_GRAY, .text_color = GRAPHICS_COLOR_BLACK, .font = &g_sFontCm24b, .text = "No", .active =
+        false };
 
 /* "Dose" button within MENU context */
-button menu_dose_button = {
-        .coords = { .xMin = 4, .yMin = 180, .xMax = 102, .yMax = 220 },
-        .button_color = GRAPHICS_COLOR_LIGHT_GRAY,
-        .text_color = GRAPHICS_COLOR_BLACK,
-        .font = &g_sFontCm20b,
-        .text = "Dose",
-        .active = false
-};
+button menu_dose_button = { .coords = { .xMin = 4, .yMin = 180, .xMax = 102, .yMax = 220 }, .button_color =
+        GRAPHICS_COLOR_LIGHT_GRAY, .text_color = GRAPHICS_COLOR_BLACK, .font = &g_sFontCm20b, .text = "Dose", .active =
+        false };
 
 /* "Dose Rate" button within MENU context */
-button menu_dose_rate_button = {
-        .coords = { .xMin = 110, .yMin = 180, .xMax = 208, .yMax = 220 },
-        .button_color = GRAPHICS_COLOR_LIGHT_GRAY,
-        .text_color = GRAPHICS_COLOR_BLACK,
-        .font = &g_sFontCm20b,
-        .text = "Dose Rate",
-        .active = false
-};
+button menu_dose_rate_button = { .coords = { .xMin = 110, .yMin = 180, .xMax = 208, .yMax = 220 }, .button_color =
+        GRAPHICS_COLOR_LIGHT_GRAY, .text_color = GRAPHICS_COLOR_BLACK, .font = &g_sFontCm20b, .text = "Dose Rate",
+        .active = false };
 
 /* "Find Device" button within MENU context */
-button menu_find_button = {
-        .coords = { .xMin = 216, .yMin = 180, .xMax = 316, .yMax = 220 },
-        .button_color = GRAPHICS_COLOR_LIGHT_GRAY,
-        .text_color = GRAPHICS_COLOR_BLACK,
-        .font = &g_sFontCm20b,
-        .text = "Find Dev.",
-        .active = false
-};
+button menu_find_button = { .coords = { .xMin = 216, .yMin = 180, .xMax = 316, .yMax = 220 }, .button_color =
+        GRAPHICS_COLOR_LIGHT_GRAY, .text_color = GRAPHICS_COLOR_BLACK, .font = &g_sFontCm20b, .text = "Find Dev.",
+        .active = false };
 
 /* Helper function to determine if click occurred inside of a button's coordinates */
 bool button_was_pressed(button *b, int32_t x, int32_t y) {
@@ -93,7 +63,7 @@ int32_t touch_callback(uint32_t message, int32_t x, int32_t y) {
             TimerEnable(TIMER1_BASE, TIMER_A);
             return 0;
         }
-        if (to_menu_button.active && button_was_pressed(&to_menu_button, x, y)
+        if ((to_menu_button.active && button_was_pressed(&to_menu_button, x, y))
                 || (find_accept_button.active && button_was_pressed(&find_accept_button, x, y))) {
             current_context = MENU;
         }
@@ -267,7 +237,6 @@ void _update_display_menu() {
 }
 
 void _init_display_dose() {
-    int8_t string_buffer[20] = { 0 };
     Graphics_setForegroundColor(&g_context, GRAPHICS_COLOR_WHITE);
     Graphics_setFont(&g_context, &g_sFontCm24b);
 
@@ -275,9 +244,6 @@ void _init_display_dose() {
     Graphics_drawLineH(&g_context, 1, 320, 40);
 
     Graphics_setFont(&g_context, &g_sFontCm48b);
-
-    sprintf((char*) &string_buffer, "%0.2e", ch_value.val);
-    Graphics_drawString(&g_context, string_buffer, -1, 4, 60, false);
 
     Graphics_setFont(&g_context, &g_sFontCm32b);
     Graphics_drawString(&g_context, "Gy", -1, 205, 60, false);
@@ -287,15 +253,9 @@ void _init_display_dose() {
 
     Graphics_setFont(&g_context, &g_sFontCm20b);
 
-    memset(&string_buffer, 0, 20);
-    sprintf((char*) &string_buffer, "%0.2e", get_history_min());
-    Graphics_drawString(&g_context, string_buffer, -1, 58, 155, false);
     Graphics_drawString(&g_context, "Min:", -1, 4, 155, false);
     Graphics_drawString(&g_context, "Gy", -1, 150, 155, false);
 
-    memset(&string_buffer, 0, 20);
-    sprintf((char*) &string_buffer, "%0.2e", get_history_max());
-    Graphics_drawString(&g_context, string_buffer, -1, 58, 180, false);
     Graphics_drawString(&g_context, "Max:", -1, 4, 180, false);
     Graphics_drawString(&g_context, "Gy", -1, 150, 180, false);
 
@@ -303,90 +263,62 @@ void _init_display_dose() {
 }
 
 void _update_display_dose() {
-    const Graphics_Rectangle hide_current = { .xMin = 4, .yMin = 45, .xMax = 204, .yMax = 110 };
-    const Graphics_Rectangle hide_min_max = { .xMin = 55, .yMin = 145, .xMax = 149, .yMax = 210 };
-    int8_t string_buffer[20] = { 0 };
+    if (ch_value.val != 0.0) {
+        const Graphics_Rectangle hide_current = { .xMin = 4, .yMin = 45, .xMax = 204, .yMax = 110 };
+        const Graphics_Rectangle hide_min_max = { .xMin = 55, .yMin = 145, .xMax = 149, .yMax = 210 };
+        int8_t string_buffer[20] = { 0 };
 
-    Graphics_setForegroundColor(&g_context, GRAPHICS_COLOR_BLACK);
-    Graphics_fillRectangle(&g_context, &hide_current);
-    Graphics_fillRectangle(&g_context, &hide_min_max);
+        Graphics_setForegroundColor(&g_context, GRAPHICS_COLOR_BLACK);
+        Graphics_fillRectangle(&g_context, &hide_current);
+        Graphics_fillRectangle(&g_context, &hide_min_max);
 
-    Graphics_setForegroundColor(&g_context, GRAPHICS_COLOR_WHITE);
-    Graphics_setFont(&g_context, &g_sFontCm48b);
+        Graphics_setForegroundColor(&g_context, GRAPHICS_COLOR_WHITE);
+        Graphics_setFont(&g_context, &g_sFontCm48b);
 
-    sprintf((char*) &string_buffer, "%0.2e", ch_value.val);
-    Graphics_drawString(&g_context, string_buffer, -1, 4, 60, false);
+        sprintf((char*) &string_buffer, "%0.2e", ch_value.val);
+        Graphics_drawString(&g_context, string_buffer, -1, 4, 60, false);
 
-    Graphics_setFont(&g_context, &g_sFontCm20b);
+        Graphics_setFont(&g_context, &g_sFontCm20b);
 
-    memset(&string_buffer, 0, 20);
-    sprintf((char*) &string_buffer, "%0.2e", get_history_min());
-    Graphics_drawString(&g_context, string_buffer, -1, 58, 155, false);
+        memset(&string_buffer, 0, 20);
+        sprintf((char*) &string_buffer, "%0.2e", get_history_min());
+        Graphics_drawString(&g_context, string_buffer, -1, 58, 155, false);
 
-    memset(&string_buffer, 0, 20);
-    sprintf((char*) &string_buffer, "%0.2e", get_history_max());
-    Graphics_drawString(&g_context, string_buffer, -1, 58, 180, false);
+        memset(&string_buffer, 0, 20);
+        sprintf((char*) &string_buffer, "%0.2e", get_history_max());
+        Graphics_drawString(&g_context, string_buffer, -1, 58, 180, false);
+    }
 }
 
 void _init_display_dose_rate() {
-    int8_t string_buffer[20] = { 0 };
     Graphics_setForegroundColor(&g_context, GRAPHICS_COLOR_WHITE);
     Graphics_setFont(&g_context, &g_sFontCm24b);
 
     Graphics_drawString(&g_context, "Dose Rate", -1, 4, 9, false);
     Graphics_drawLineH(&g_context, 1, 320, 40);
 
-    Graphics_setFont(&g_context, &g_sFontCm48b);
-    sprintf((char*) &string_buffer, "%0.2e", ch_value.val);
-    Graphics_drawString(&g_context, string_buffer, -1, 4, 60, false);
-
     Graphics_setFont(&g_context, &g_sFontCm32b);
     Graphics_drawString(&g_context, "Gy/h", -1, 205, 60, false);
-
-    Graphics_setFont(&g_context, &g_sFontCm22b);
-    Graphics_drawString(&g_context, "Last minute extremes:", -1, 4, 120, false);
-
-    Graphics_setFont(&g_context, &g_sFontCm20b);
-
-    memset(&string_buffer, 0, 20);
-    sprintf((char*) &string_buffer, "%0.2e", get_history_min());
-    Graphics_drawString(&g_context, string_buffer, -1, 58, 155, false);
-    Graphics_drawString(&g_context, "Min:", -1, 4, 155, false);
-    Graphics_drawString(&g_context, "Gy/h", -1, 150, 155, false);
-
-    memset(&string_buffer, 0, 20);
-    sprintf((char*) &string_buffer, "%0.2e", get_history_max());
-    Graphics_drawString(&g_context, string_buffer, -1, 58, 180, false);
-    Graphics_drawString(&g_context, "Max:", -1, 4, 180, false);
-    Graphics_drawString(&g_context, "Gy/h", -1, 150, 180, false);
 
     draw_button(&to_menu_button);
 }
 
 void _update_display_dose_rate() {
-    const Graphics_Rectangle hide_current = { .xMin = 4, .yMin = 45, .xMax = 204, .yMax = 110 };
-    const Graphics_Rectangle hide_min_max = { .xMin = 55, .yMin = 145, .xMax = 149, .yMax = 210 };
-    int8_t string_buffer[20] = { 0 };
+    if (ch_value.val != 0.0) {
+        const Graphics_Rectangle hide_current = { .xMin = 4, .yMin = 45, .xMax = 204, .yMax = 110 };
+        const Graphics_Rectangle hide_min_max = { .xMin = 55, .yMin = 145, .xMax = 149, .yMax = 210 };
+        int8_t string_buffer[20] = { 0 };
 
-    Graphics_setForegroundColor(&g_context, GRAPHICS_COLOR_BLACK);
-    Graphics_fillRectangle(&g_context, &hide_current);
-    Graphics_fillRectangle(&g_context, &hide_min_max);
+        Graphics_setForegroundColor(&g_context, GRAPHICS_COLOR_BLACK);
+        Graphics_fillRectangle(&g_context, &hide_current);
+        Graphics_fillRectangle(&g_context, &hide_min_max);
 
-    Graphics_setForegroundColor(&g_context, GRAPHICS_COLOR_WHITE);
-    Graphics_setFont(&g_context, &g_sFontCm48b);
+        Graphics_setForegroundColor(&g_context, GRAPHICS_COLOR_WHITE);
+        Graphics_setFont(&g_context, &g_sFontCm48b);
 
-    sprintf((char*) &string_buffer, "%0.2e", ch_value.val);
-    Graphics_drawString(&g_context, string_buffer, -1, 4, 60, false);
-
-    Graphics_setFont(&g_context, &g_sFontCm20b);
-
-    memset(&string_buffer, 0, 20);
-    sprintf((char*) &string_buffer, "%0.2e", get_history_min());
-    Graphics_drawString(&g_context, string_buffer, -1, 58, 155, false);
-
-    memset(&string_buffer, 0, 20);
-    sprintf((char*) &string_buffer, "%0.2e", get_history_max());
-    Graphics_drawString(&g_context, string_buffer, -1, 58, 180, false);
+        sprintf((char*) &string_buffer, "%0.2e", ch_value.val);
+        Graphics_drawString(&g_context, string_buffer, -1, 4, 60, false);
+    }
 }
 
 void draw_button(button *b) {
