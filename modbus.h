@@ -40,14 +40,15 @@ typedef enum { // TODO: Remove unused
  * It then generates a ModBus-RTU ADU with "Read Input Registers" request and stores it in the output_dest.
  * After function is finished, *output_pos contains number of bytes written to output_dest.
  */
-int gen_mb_read_input_regs(uint8_t device_addr, uint16_t reg_addr_start, uint16_t regs_count, uint8_t * output_dest, volatile uint8_t * output_pos);
+int gen_mb_read_input_regs(uint8_t device_addr, uint16_t reg_addr_start, uint16_t regs_count, uint8_t *output_dest,
+        volatile uint8_t *output_pos);
 
 /*
  * This function takes a ModBus-RTU "Read Input Registers" request response ADU, checks validity of
  * the response and parses the received data into output_dest.
  * In case of an error, an appropriate value is returned.
  */
-int decode_mb_read_input_regs(uint8_t * data, uint8_t data_length, void * output_dest);
+int decode_mb_read_input_regs(uint8_t *data, uint8_t data_length, void *output_dest);
 
 void switch_register_endianity(uint8_t *data, const unsigned int bytes);
 
