@@ -10,6 +10,14 @@
 
 #include <stdint.h>
 
+#define ID_REG_START_ADDR 0x0000
+#define TEMP_REG_START_ADDR 0x0114
+#define DOSE_REG_START_ADDR 0x010A
+#define DOSE_RATE_REG_START_ADDR 0x0100
+
+#define ID_REGS_COUNT 0x0024
+#define CH_VAL_REGS_COUNT 0x000A
+
 typedef struct {
     uint32_t hw_id;
     uint32_t sw_id;
