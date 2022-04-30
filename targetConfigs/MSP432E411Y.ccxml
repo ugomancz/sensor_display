@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <configurations XML_version="1.2" id="configurations_0">
-                                
+                                    
+    
     
     
     
@@ -9,7 +10,8 @@
     
     
     <configuration XML_version="1.2" id="Texas Instruments XDS2xx USB Debug Probe_0">
-                                                                
+                                                                        
+        
         
         
         
@@ -17,7 +19,8 @@
         
         
         <instance XML_version="1.2" desc="Texas Instruments XDS2xx USB Debug Probe_0" href="connections/TIXDS2XXUSB_Connection.xml" id="Texas Instruments XDS2xx USB Debug Probe_0" xml="TIXDS2XXUSB_Connection.xml" xmlpath="connections"/>
-                                                                
+                                                                        
+        
         
         
         
@@ -25,7 +28,8 @@
         
         
         <connection XML_version="1.2" id="Texas Instruments XDS2xx USB Debug Probe_0">
-                                                                                                
+                                                                                                            
+            
             
             
             
@@ -33,7 +37,8 @@
             
             
             <instance XML_version="1.2" href="drivers/tixds560cs_dap.xml" id="drivers" xml="tixds560cs_dap.xml" xmlpath="drivers"/>
-                                                                                                
+                                                                                                            
+            
             
             
             
@@ -41,7 +46,8 @@
             
             
             <instance XML_version="1.2" href="drivers/tixds560cortexM.xml" id="drivers" xml="tixds560cortexM.xml" xmlpath="drivers"/>
-                                                                                                
+                                                                                                            
+            
             
             
             
@@ -49,7 +55,8 @@
             
             
             <property Type="choicelist" Value="0" id="The JTAG TCLK Frequency (MHz)"/>
-                                                                                                
+                                                                                                            
+            
             
             
             
@@ -57,7 +64,8 @@
             
             
             <property Type="choicelist" Value="4" id="The cJTAG / SWD Features"/>
-                                                                                                
+                                                                                                            
+            
             
             
             
@@ -65,7 +73,8 @@
             
             
             <platform XML_version="1.2" id="platform_0">
-                                                                                                                                
+                                                                                                                                                
+                
                 
                 
                 
@@ -73,7 +82,8 @@
                 
                 
                 <instance XML_version="1.2" desc="MSP432E411Y_0" href="devices/msp432e411y.xml" id="MSP432E411Y_0" xml="msp432e411y.xml" xmlpath="devices"/>
-                                                                                                                            
+                                                                                                                                            
+            
             
             
             
@@ -81,7 +91,8 @@
             
             
             </platform>
-                                                                                            
+                                                                                                        
+        
         
         
         
@@ -89,7 +100,8 @@
         
         
         </connection>
-                                                            
+                                                                    
+    
     
     
     
@@ -97,7 +109,8 @@
     
     
     </configuration>
-                            
+                                
+
 
 
 
