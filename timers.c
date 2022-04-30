@@ -17,8 +17,6 @@
 void context_switch_timeout_handler() {
     TimerDisable(TIMER1_BASE, TIMER_A);
     TimerIntClear(TIMER1_BASE, TIMER_TIMA_TIMEOUT);
-    reset_buffer();
-    reset_history();
     memset(&ch_value, 0, sizeof(ch_value));
     UARTIntClear(UART6_BASE, UARTIntStatus(UART6_BASE, true));
 
@@ -36,6 +34,8 @@ void context_switch_timeout_handler() {
     UARTIntClear(UART6_BASE, UARTIntStatus(UART6_BASE, true));
     UARTIntEnable(UART6_BASE, UART_INT_RX | UART_INT_TX);
     TouchScreenCallbackSet(touch_callback);
+    reset_buffer();
+    reset_history();
     clr_screen = true;
     comm_state = SEND_MESSAGE;
     TimerEnable(TIMER1_BASE, TIMER_A);
