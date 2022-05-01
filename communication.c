@@ -13,6 +13,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+volatile comm_context current_comm_context = DEVICE_LOOKUP;
 volatile comm_state current_comm_state = SEND_MESSAGE;
 
 volatile uint8_t device_address = 0x01;

@@ -22,6 +22,11 @@ typedef enum {
     WAIT_TO_SEND, WAIT_TO_RECEIVE, SEND_MESSAGE, MESSAGE_RECEIVED
 } comm_state;
 
+/* Represents the current context of communication */
+typedef enum {
+    DEVICE_LOOKUP, FETCH_CH_VALUES
+} comm_context;
+
 /* Represents specific channel values in the ch_values array */
 typedef enum {
     DOSE_RATE_CH = 0, DOSE_CH = 1, TEMP_CH = 2
@@ -29,6 +34,9 @@ typedef enum {
 
 /* Holds the address of the "communicated to" device */
 extern volatile uint8_t device_address;
+
+/* Tracks the current context of communication */
+extern volatile comm_context current_comm_context;
 
 /* Tracks the current state of communication */
 extern volatile comm_state current_comm_state;
