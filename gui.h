@@ -58,13 +58,11 @@ void draw_button(button *b);
 /* Top level function which updates the screen contents based on the current GUI context */
 void gui_update();
 
-/* Initialises DEVIDE_LOOKUP GUI. Serves as an entry point to GUI rendering. */
-void _init_device_lookup_gui();
-
 /* Draws information about found device and buttons for user interaction (use/don't use choice) */
 void update_found_device_lookup_gui();
 
 /* Used internally by gui_update() */
+void _init_device_lookup_gui();
 void _update_device_lookup_gui();
 void _init_menu_gui();
 void _update_menu_gui();

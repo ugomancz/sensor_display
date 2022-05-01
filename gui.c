@@ -31,7 +31,7 @@ button to_menu_button = {
 };
 
 /* "Yes" button within DEVICE_LOOKUP_GUI context */
-button find_accept_button = {
+button lookup_accept_button = {
         .coords = { .xMin = 50, .yMin = 180, .xMax = 150, .yMax = 220 },
         .button_color = GRAPHICS_COLOR_LIGHT_GRAY,
         .text_color = GRAPHICS_COLOR_BLACK,
@@ -41,7 +41,7 @@ button find_accept_button = {
 };
 
 /* "No" button within DEVICE_LOOKUP_GUI context */
-button find_reject_button = {
+button lookup_reject_button = {
         .coords = { .xMin = 170, .yMin = 180, .xMax = 270, .yMax = 220 },
         .button_color = GRAPHICS_COLOR_LIGHT_GRAY,
         .text_color = GRAPHICS_COLOR_BLACK,
@@ -51,7 +51,7 @@ button find_reject_button = {
 };
 
 /* "Dose" button within MENU_GUI context */
-button menu_dose_button = {
+button to_dose_button = {
         .coords = { .xMin = 4, .yMin = 180, .xMax = 102, .yMax = 220 },
         .button_color = GRAPHICS_COLOR_LIGHT_GRAY,
         .text_color = GRAPHICS_COLOR_BLACK,
@@ -61,7 +61,7 @@ button menu_dose_button = {
 };
 
 /* "Dose Rate" button within MENU_GUI context */
-button menu_dose_rate_button = {
+button to_dose_rate_button = {
         .coords = { .xMin = 110, .yMin = 180, .xMax = 208, .yMax = 220 },
         .button_color = GRAPHICS_COLOR_LIGHT_GRAY,
         .text_color = GRAPHICS_COLOR_BLACK,
@@ -71,7 +71,7 @@ button menu_dose_rate_button = {
 };
 
 /* "Find Device" button within MENU_GUI context */
-button menu_find_button = {
+button to_lookup_button = {
         .coords = { .xMin = 216, .yMin = 180, .xMax = 316, .yMax = 220 },
         .button_color = GRAPHICS_COLOR_LIGHT_GRAY,
         .text_color = GRAPHICS_COLOR_BLACK,
@@ -94,34 +94,34 @@ int32_t touch_callback(uint32_t message, int32_t x, int32_t y) {
             TimerLoadSet(TIMER1_BASE, TIMER_A, FETCH_CH_VALUES_MSG_DELAY);
             TimerEnable(TIMER1_BASE, TIMER_A);
             current_comm_context = FETCH_CH_VALUES;
-        } else if (find_accept_button.active && button_was_pressed(&find_accept_button, x, y)) {
+        } else if (lookup_accept_button.active && button_was_pressed(&lookup_accept_button, x, y)) {
             current_gui_context = MENU_GUI;
             TimerLoadSet(TIMER1_BASE, TIMER_A, FETCH_CH_VALUES_MSG_DELAY);
             TimerEnable(TIMER1_BASE, TIMER_A);
             current_comm_context = FETCH_CH_VALUES;
             device_address = device_lookup_address;
             device_id = device_lookup_id;
-        } else if (find_reject_button.active && button_was_pressed(&find_reject_button, x, y)) {
-            find_accept_button.active = false;
-            find_reject_button.active = false;
+        } else if (lookup_reject_button.active && button_was_pressed(&lookup_reject_button, x, y)) {
+            lookup_accept_button.active = false;
+            lookup_reject_button.active = false;
             ++device_lookup_address;
             TimerEnable(TIMER1_BASE, TIMER_A);
-        } else if (menu_dose_button.active && button_was_pressed(&menu_dose_button, x, y)) {
+        } else if (to_dose_button.active && button_was_pressed(&to_dose_button, x, y)) {
             current_gui_context = DOSE_GUI;
-        } else if (menu_dose_rate_button.active && button_was_pressed(&menu_dose_rate_button, x, y)) {
+        } else if (to_dose_rate_button.active && button_was_pressed(&to_dose_rate_button, x, y)) {
             current_gui_context = DOSE_RATE_GUI;
-        } else if (menu_find_button.active && button_was_pressed(&menu_find_button, x, y)) {
+        } else if (to_lookup_button.active && button_was_pressed(&to_lookup_button, x, y)) {
             current_gui_context = DEVICE_LOOKUP_GUI;
             current_comm_context = DEVICE_LOOKUP;
             device_lookup_address = 0x01;
             TimerLoadSet(TIMER1_BASE, TIMER_A, DEVICE_LOOKUP_MSG_DELAY);
         }
         if (initial_gui_context != current_gui_context) {
-            menu_dose_button.active = false;
-            menu_dose_rate_button.active = false;
-            menu_find_button.active = false;
-            find_accept_button.active = false;
-            find_reject_button.active = false;
+            to_dose_button.active = false;
+            to_dose_rate_button.active = false;
+            to_lookup_button.active = false;
+            lookup_accept_button.active = false;
+            lookup_reject_button.active = false;
             to_menu_button.active = false;
             clr_screen = true;
             current_comm_state = SEND_MESSAGE;
@@ -213,8 +213,8 @@ void update_found_device_lookup_gui() {
     format_hw_id(string_buffer, device_lookup_id.hw_id);
     Graphics_drawString(&g_context, (int8_t*) string_buffer, -1, 4, 140, false);
 
-    draw_button(&find_accept_button);
-    draw_button(&find_reject_button);
+    draw_button(&lookup_accept_button);
+    draw_button(&lookup_reject_button);
 }
 
 void _update_device_lookup_gui() {
@@ -228,8 +228,8 @@ void _update_device_lookup_gui() {
     Graphics_setForegroundColor(&g_context, GRAPHICS_COLOR_WHITE);
     sprintf(string_buffer, "0x%02x", device_lookup_address);
     Graphics_drawString(&g_context, (int8_t*) string_buffer, -1, 200, 60, false);
-    find_accept_button.active = false;
-    find_reject_button.active = false;
+    lookup_accept_button.active = false;
+    lookup_reject_button.active = false;
     Graphics_setForegroundColor(&g_context, GRAPHICS_COLOR_BLACK);
     Graphics_fillRectangle(&g_context, &hide_found);
 }
@@ -270,9 +270,9 @@ void _init_menu_gui() {
     Graphics_drawString(&g_context, (int8_t*) string_buffer, -1, 4, 150, false);
     last_displayed_values[TEMP_CH] = ch_values[TEMP_CH].val;
 
-    draw_button(&menu_dose_button);
-    draw_button(&menu_dose_rate_button);
-    draw_button(&menu_find_button);
+    draw_button(&to_dose_button);
+    draw_button(&to_dose_rate_button);
+    draw_button(&to_lookup_button);
 }
 
 void _update_menu_gui() {
