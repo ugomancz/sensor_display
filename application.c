@@ -6,6 +6,7 @@
  */
 #include "application.h"
 #include "communication.h"
+#include "gui.h"
 #include <ti/devices/msp432e4/driverlib/driverlib.h>
 #include <ti/devices/msp432e4/driverlib/gpio.h>
 #include <ti/devices/msp432e4/driverlib/interrupt.h>
@@ -54,6 +55,12 @@ void msg_received_timeout_handler() {
 void send_message_timeout_handler() {
     TimerIntClear(TIMER1_BASE, TIMER_TIMA_TIMEOUT);
     current_comm_state = SEND_MESSAGE;
+    if (current_comm_context == DEVICE_LOOKUP) {
+        if (device_lookup_address >= 247) {
+            device_lookup_address = 0;
+        }
+        ++device_lookup_address;
+    }
 }
 
 int main(void) {
@@ -107,7 +114,7 @@ int main(void) {
     }
     TimerConfigure(TIMER1_BASE, TIMER_CFG_PERIODIC);
     TimerIntRegister(TIMER1_BASE, TIMER_A, send_message_timeout_handler);
-    TimerLoadSet(TIMER1_BASE, TIMER_A, SEND_MSG_DELAY);
+    TimerLoadSet(TIMER1_BASE, TIMER_A, DEVICE_LOOKUP_MSG_DELAY);
     IntEnable(INT_TIMER1A);
     TimerIntEnable(TIMER1_BASE, TIMER_TIMA_TIMEOUT);
 
@@ -116,16 +123,37 @@ int main(void) {
         exit(-1);
     }
 
+    /* Initialise the LCD and touch screen driver */
+    Kentec_Init(ui32SysClock);
+    TouchScreenInit(ui32SysClock);
+    TouchScreenCallbackSet(touch_callback);
+    Graphics_initContext(&g_context, &Kentec_GD, &Kentec_fxns);
+
     TimerEnable(TIMER1_BASE, TIMER_A);
 
     while (1) {
+        if (clr_screen || update_gui) {
+            gui_update();
+        }
         switch (current_comm_state) {
         case SEND_MESSAGE:
-            request_current_channel_values();
+            if (current_comm_context == DEVICE_LOOKUP) {
+                request_device_lookup_id();
+                update_gui = true;
+            } else {
+                request_current_channel_values();
+            }
             current_comm_state = WAIT_TO_RECEIVE;
             break;
-        case MESSAGE_RECEIVED:
-            parse_received_channel_values();
+        case MESSAGE_RECEIVED: // TODO: check return value
+            if (current_comm_context == DEVICE_LOOKUP) {
+                TimerDisable(TIMER1_BASE, TIMER_A);
+                parse_received_device_lookup_id();
+                update_found_device_lookup_gui();
+            } else {
+                parse_received_channel_values();
+                update_gui = true;
+            }
             current_comm_state = WAIT_TO_SEND;
             break;
         }
