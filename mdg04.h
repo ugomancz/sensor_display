@@ -18,6 +18,11 @@
 #define ID_REGS_COUNT 0x0024
 #define CH_VAL_REGS_COUNT 0x000A
 
+typedef union {
+    uint32_t time;
+    uint32_t counter;
+} ch_val_ts;
+
 typedef struct {
     uint32_t hw_id;
     uint32_t sw_id;
@@ -32,11 +37,6 @@ typedef struct {
     uint16_t _res3;
 } dev_id;
 
-typedef union {
-    uint32_t time;
-    uint32_t counter;
-} ch_val_ts;
-
 typedef struct {
     float val;
     uint32_t sta;
@@ -46,8 +46,6 @@ typedef struct {
     uint16_t _res;
 } ch_val;
 
-void switch_string_endianity(uint8_t *s);
-void switch_float_endianity(float *f);
 void format_hw_id(int8_t *buffer, uint32_t id);
 void format_sw_id(int8_t *buffer, uint32_t id);
 
