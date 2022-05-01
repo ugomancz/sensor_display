@@ -15,11 +15,9 @@
 #include <ti/devices/msp432e4/inc/msp432e411y.h>
 #include <ti/drivers/uart/UARTMSP432E4.h>
 #include <stdlib.h>
-volatile int counter = 0;
 
 /* UART RX/TX interrupt handler */
 void uart_int_handler(void) {
-    ++counter;
     uint32_t ui32Status;
     TimerDisable(TIMER0_BASE, TIMER_A);
 
