@@ -35,6 +35,9 @@ typedef enum {
 /* Holds the address of the "communicated to" device */
 extern volatile uint8_t device_address;
 
+/* Holds the address of the "communicated to" device during DEVICE_LOOKUP context */
+extern volatile uint8_t device_lookup_address;
+
 /* Tracks the current context of communication */
 extern volatile comm_context current_comm_context;
 
@@ -49,6 +52,9 @@ extern volatile uint8_t rx_buffer_pos;
 
 /* dev_id structure to hold information about the sensor */
 extern dev_id device_id;
+
+/* dev_id structure to hold information about the sensor during DEVICE_LOOKUP context */
+extern dev_id device_lookup_id;
 
 /* Array of ch_val structures to hold the channel value data of all three channels */
 extern ch_val ch_values[3];
@@ -75,9 +81,9 @@ void request_current_channel_values();
 int parse_received_channel_values();
 
 /* Sends a request to the sensor for the dev_id structure */
-void request_device_id();
+void request_device_lookup_id();
 
 /* Parses the received dev_id into the device_id structure */
-int parse_received_device_id();
+int parse_received_device_lookup_id();
 
 #endif /* COMMUNICATION_H_ */
