@@ -51,6 +51,11 @@ void msg_received_timeout_handler() {
     current_comm_state = MESSAGE_RECEIVED;
 }
 
+void send_message_timeout_handler() {
+    TimerIntClear(TIMER1_BASE, TIMER_TIMA_TIMEOUT);
+    current_comm_state = SEND_MESSAGE;
+}
+
 int main(void) {
     uint32_t ui32SysClock;
     volatile uint32_t ui32Loop;
@@ -96,10 +101,22 @@ int main(void) {
     IntEnable(INT_TIMER0A);
     TimerIntEnable(TIMER0_BASE, TIMER_TIMA_TIMEOUT);
 
+    /* Initialise the T15 "message received" timer */
+    SysCtlPeripheralEnable(SYSCTL_PERIPH_TIMER1);
+    while (!SysCtlPeripheralReady(SYSCTL_PERIPH_TIMER1)) {
+    }
+    TimerConfigure(TIMER1_BASE, TIMER_CFG_PERIODIC);
+    TimerIntRegister(TIMER1_BASE, TIMER_A, send_message_timeout_handler);
+    TimerLoadSet(TIMER1_BASE, TIMER_A, SEND_MSG_DELAY);
+    IntEnable(INT_TIMER1A);
+    TimerIntEnable(TIMER1_BASE, TIMER_TIMA_TIMEOUT);
+
     /* Initialise the RX/TX buffers */
     if (init_comm_buffers()) {
         exit(-1);
     }
+
+    TimerEnable(TIMER1_BASE, TIMER_A);
 
     while (1) {
         switch (current_comm_state) {
