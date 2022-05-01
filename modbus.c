@@ -9,7 +9,7 @@
 #include <string.h>
 
 #define BYTE_WIDTH 8
-volatile fn_code last_fn_used;
+fn_code last_fn_used;
 int16_t last_dev_addr = -1;
 
 /*
