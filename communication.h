@@ -24,7 +24,7 @@ typedef enum {
 
 /* Represents specific channel values in the ch_values array */
 typedef enum {
-    TEMP_CH = 0, DOSE_CH = 1, DOSE_RATE_CH = 2
+    DOSE_RATE_CH = 0, DOSE_CH = 1, TEMP_CH = 2
 } ch_type;
 
 /* Holds the address of the "communicated to" device */
@@ -38,6 +38,9 @@ extern uint8_t *tx_buffer;
 extern uint8_t *rx_buffer;
 extern volatile uint8_t tx_buffer_pos;
 extern volatile uint8_t rx_buffer_pos;
+
+/* dev_id structure to hold information about the sensor */
+extern dev_id device_id;
 
 /* Array of ch_val structures to hold the channel value data of all three channels */
 extern ch_val ch_values[3];
@@ -62,5 +65,11 @@ void request_current_channel_values();
 
 /* Parses the received channel values data into the ch_values[] array */
 int parse_received_channel_values();
+
+/* Sends a request to the sensor for the dev_id structure */
+void request_device_id();
+
+/* Parses the received dev_id into the device_id structure */
+int parse_received_device_id();
 
 #endif /* COMMUNICATION_H_ */

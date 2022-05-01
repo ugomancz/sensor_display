@@ -22,6 +22,7 @@ uint8_t *rx_buffer;
 volatile uint8_t tx_buffer_pos = 0;
 volatile uint8_t rx_buffer_pos = 0;
 
+dev_id device_id = { 0 };
 ch_val ch_values[3] = { 0 };
 
 void set_comm_direction(direction dir) {
@@ -61,6 +62,20 @@ void request_current_channel_values() {
 
 int parse_received_channel_values() {
     int retval = decode_mb_read_input_regs(rx_buffer, rx_buffer_pos, &ch_values);
+    if (retval == SUCCESS) {
+        reset_rx_buffer();
+    }
+    return retval;
+}
+
+void request_device_id() {
+    gen_mb_read_input_regs(device_address, ID_REG_START_ADDR, ID_REGS_COUNT, tx_buffer, &tx_buffer_pos);
+    uart_send();
+    reset_tx_buffer();
+}
+
+int parse_received_device_id() {
+    int retval = decode_mb_read_input_regs(rx_buffer, rx_buffer_pos, &device_id);
     if (retval == SUCCESS) {
         reset_rx_buffer();
     }
