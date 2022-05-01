@@ -51,10 +51,18 @@ void uart_send() {
     for (int i = 0; i < tx_buffer_pos; ++i) {
         UARTCharPut(UART6_BASE, tx_buffer[i]);
     }
-    reset_tx_buffer();
 }
 
 void request_current_channel_values() {
     gen_mb_read_input_regs(device_address, DOSE_RATE_REG_START_ADDR, CH_VAL_REGS_COUNT * 3, tx_buffer, &tx_buffer_pos);
     uart_send();
+    reset_tx_buffer();
+}
+
+int parse_received_channel_values() {
+    int retval = decode_mb_read_input_regs(rx_buffer, rx_buffer_pos, &ch_values);
+    if (retval == SUCCESS) {
+        reset_rx_buffer();
+    }
+    return retval;
 }

@@ -101,8 +101,16 @@ int main(void) {
         exit(-1);
     }
 
-    request_current_channel_values();
-
     while (1) {
+        switch (current_comm_state) {
+        case SEND_MESSAGE:
+            request_current_channel_values();
+            current_comm_state = WAIT_TO_RECEIVE;
+            break;
+        case MESSAGE_RECEIVED:
+            parse_received_channel_values();
+            current_comm_state = WAIT_TO_SEND;
+            break;
+        }
     }
 }

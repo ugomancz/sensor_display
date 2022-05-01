@@ -60,4 +60,7 @@ void uart_send();
 /* Sends a request to the sensor for all three fast channel ch_val structures */
 void request_current_channel_values();
 
+/* Parses the received channel values data into the ch_values[] array */
+int parse_received_channel_values();
+
 #endif /* COMMUNICATION_H_ */
