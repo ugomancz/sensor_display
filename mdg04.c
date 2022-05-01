@@ -9,8 +9,8 @@
 #include <stdio.h>
 
 /* Saves properly formatted HW_ID to buffer based on id */
-void format_hw_id(int8_t *buffer, uint32_t id) {
-    char *p = (char*) buffer + strlen((char*) buffer);
+void format_hw_id(char *buffer, uint32_t id) {
+    char *p = buffer + strlen(buffer);
     uint32_t type = id >> 28;
     id &= 0x0FFFFFFF;
     switch (type) {
@@ -42,8 +42,8 @@ void format_hw_id(int8_t *buffer, uint32_t id) {
 }
 
 /* Saves properly formatted SW_ID to buffer based on id */
-void format_sw_id(int8_t *buffer, uint32_t id) {
-    char *p = (char*) buffer + strlen((char*) buffer);
+void format_sw_id(char *buffer, uint32_t id) {
+    char *p = buffer + strlen(buffer);
     uint32_t type = id >> 28;
     id &= 0x0FFFFFFF;
     switch (type) {
