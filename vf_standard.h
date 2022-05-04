@@ -5,8 +5,8 @@
  *      Author: ondra
  */
 
-#ifndef MDG04_H_
-#define MDG04_H_
+#ifndef VF_STANDARD_H_
+#define VF_STANDARD_H_
 
 #include <stdint.h>
 
@@ -49,4 +49,4 @@ typedef struct {
 void format_hw_id(char *buffer, uint32_t id);
 void format_sw_id(char *buffer, uint32_t id);
 
-#endif /* MDG04_H_ */
+#endif /* VF_STANDARD_H_ */

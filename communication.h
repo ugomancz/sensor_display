@@ -7,7 +7,7 @@
 #ifndef COMMUNICATION_H_
 #define COMMUNICATION_H_
 
-#include "mdg04.h"
+#include <vf_standard.h>
 
 #define TX_BUFFER_SIZE 256
 #define RX_BUFFER_SIZE 256
