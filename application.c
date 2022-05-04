@@ -54,12 +54,20 @@ void msg_received_timeout_handler() {
 
 void send_message_timeout_handler() {
     TimerIntClear(TIMER1_BASE, TIMER_TIMA_TIMEOUT);
-    current_comm_state = SEND_MESSAGE;
-    if (current_comm_context == DEVICE_LOOKUP) {
-        if (device_lookup_address >= 247) {
-            device_lookup_address = 0;
+    if (current_comm_state == WAIT_TO_SEND) {
+        current_comm_state = SEND_MESSAGE;
+        if (current_comm_context == DEVICE_LOOKUP) {
+            if (device_lookup_address >= 247) {
+                device_lookup_address = 0;
+            }
+            ++device_lookup_address;
         }
-        ++device_lookup_address;
+    } else if (current_comm_context != DEVICE_LOOKUP && ++comm_error_counter >= 3) {
+        TimerDisable(TIMER1_BASE, TIMER_A);
+        TouchScreenCallbackSet(NULL);
+        current_comm_state = WAIT_TO_SEND;
+        current_gui_context = ERROR_GUI;
+        clr_screen = true;
     }
 }
 
@@ -108,7 +116,7 @@ int main(void) {
     IntEnable(INT_TIMER0A);
     TimerIntEnable(TIMER0_BASE, TIMER_TIMA_TIMEOUT);
 
-    /* Initialise the T15 "message received" timer */
+    /* Initialise the "send message" timer */
     SysCtlPeripheralEnable(SYSCTL_PERIPH_TIMER1);
     while (!SysCtlPeripheralReady(SYSCTL_PERIPH_TIMER1)) {
     }
@@ -145,13 +153,17 @@ int main(void) {
             }
             current_comm_state = WAIT_TO_RECEIVE;
             break;
-        case MESSAGE_RECEIVED: // TODO: check return value
+        case MESSAGE_RECEIVED:
             if (current_comm_context == DEVICE_LOOKUP) {
                 TimerDisable(TIMER1_BASE, TIMER_A);
-                parse_received_device_lookup_id();
+                if (parse_received_device_lookup_id()) {
+                    ++comm_error_counter;
+                }
                 update_found_device_lookup_gui();
             } else {
-                parse_received_channel_values();
+                if (parse_received_channel_values()) {
+                    ++comm_error_counter;
+                }
                 update_gui = true;
             }
             current_comm_state = WAIT_TO_SEND;

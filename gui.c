@@ -176,6 +176,9 @@ void gui_update() {
             _update_dose_rate_gui();
         }
         break;
+    case ERROR_GUI:
+        _init_error_gui();
+        break;
     }
     clr_screen = false;
 }
@@ -395,4 +398,17 @@ void _update_dose_rate_gui() {
 
         last_displayed_values[DOSE_RATE_CH] = ch_values[DOSE_RATE_CH].val;
     }
+}
+
+void _init_error_gui() {
+    Graphics_setForegroundColor(&g_context, GRAPHICS_COLOR_RED);
+    Graphics_setFont(&g_context, &g_sFontCm48b);
+
+    Graphics_drawStringCentered(&g_context, (int8_t*) "Error!", -1, 160, 60, false);
+
+    Graphics_setForegroundColor(&g_context, GRAPHICS_COLOR_WHITE);
+    Graphics_setFont(&g_context, &g_sFontCm20b);
+
+    Graphics_drawStringCentered(&g_context, (int8_t*) "Connection to the sensor lost.", -1, 160, 125, false);
+    Graphics_drawStringCentered(&g_context, (int8_t*) "Reboot required.", -1, 160, 145, false);
 }
