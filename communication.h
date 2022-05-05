@@ -38,8 +38,8 @@ extern volatile uint8_t device_address;
 /* Holds the address of the "communicated to" device during DEVICE_LOOKUP context */
 extern volatile uint8_t device_lookup_address;
 
-/* Counter used for communication error handling */
-extern volatile uint8_t comm_error_counter;
+/* Counter to keep track of request timeouts */
+extern volatile uint8_t request_timeout_counter;
 
 /* Tracks the current context of communication */
 extern volatile comm_context current_comm_context;

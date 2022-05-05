@@ -18,7 +18,7 @@ volatile comm_state current_comm_state = SEND_MESSAGE;
 
 volatile uint8_t device_address = 0x01;
 volatile uint8_t device_lookup_address = 0x01;
-volatile uint8_t comm_error_counter = 0;
+volatile uint8_t request_timeout_counter = 0;
 
 uint8_t *tx_buffer;
 uint8_t *rx_buffer;

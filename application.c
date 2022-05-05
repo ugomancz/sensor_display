@@ -17,6 +17,7 @@
 #include <ti/drivers/uart/UARTMSP432E4.h>
 #include <stdlib.h>
 
+volatile int retval = 0;
 /* UART RX/TX interrupt handler */
 void uart_int_handler(void) {
     uint32_t ui32Status;
@@ -54,21 +55,18 @@ void msg_received_timeout_handler() {
 
 void send_message_timeout_handler() {
     TimerIntClear(TIMER1_BASE, TIMER_TIMA_TIMEOUT);
-    if (current_comm_state == WAIT_TO_SEND) {
-        current_comm_state = SEND_MESSAGE;
-        if (current_comm_context == DEVICE_LOOKUP) {
-            if (device_lookup_address >= 247) {
-                device_lookup_address = 0;
-            }
-            ++device_lookup_address;
+    current_comm_state = SEND_MESSAGE;
+    if (current_comm_context == DEVICE_LOOKUP) {
+        if (device_lookup_address >= 247) {
+            device_lookup_address = 0;
         }
-    } else if (current_comm_context != DEVICE_LOOKUP && ++comm_error_counter >= 3) {
-        TimerDisable(TIMER1_BASE, TIMER_A);
-        TouchScreenCallbackSet(NULL);
-        current_comm_state = WAIT_TO_SEND;
-        current_gui_context = ERROR_GUI;
-        clr_screen = true;
+        ++device_lookup_address;
     }
+}
+
+void no_response_timeout_handler() {
+    TimerIntClear(TIMER2_BASE, TIMER_TIMA_TIMEOUT);
+    ++request_timeout_counter;
 }
 
 int main(void) {
@@ -126,6 +124,16 @@ int main(void) {
     IntEnable(INT_TIMER1A);
     TimerIntEnable(TIMER1_BASE, TIMER_TIMA_TIMEOUT);
 
+    /* Initialise the "request timeout" timer */
+    SysCtlPeripheralEnable(SYSCTL_PERIPH_TIMER2);
+    while (!SysCtlPeripheralReady(SYSCTL_PERIPH_TIMER2)) {
+    }
+    TimerConfigure(TIMER2_BASE, TIMER_CFG_PERIODIC);
+    TimerIntRegister(TIMER2_BASE, TIMER_A, no_response_timeout_handler);
+    TimerLoadSet(TIMER2_BASE, TIMER_A, REQ_TIMEOUT_DELAY);
+    IntEnable(INT_TIMER2A);
+    TimerIntEnable(TIMER2_BASE, TIMER_TIMA_TIMEOUT);
+
     /* Initialise the RX/TX buffers */
     if (init_comm_buffers()) {
         exit(-1);
@@ -140,6 +148,13 @@ int main(void) {
     TimerEnable(TIMER1_BASE, TIMER_A);
 
     while (1) {
+        if (request_timeout_counter >= 5 && current_gui_context != ERROR_GUI) {
+            TimerDisable(TIMER1_BASE, TIMER_A);
+            TimerDisable(TIMER2_BASE, TIMER_A);
+            current_gui_context = ERROR_GUI;
+            current_comm_state = WAIT_TO_SEND;
+            clr_screen = true;
+        }
         if (clr_screen || update_gui) {
             gui_update();
         }
@@ -150,20 +165,19 @@ int main(void) {
                 update_gui = true;
             } else {
                 request_current_channel_values();
+                TimerEnable(TIMER2_BASE, TIMER_A);
             }
             current_comm_state = WAIT_TO_RECEIVE;
             break;
         case MESSAGE_RECEIVED:
+            TimerDisable(TIMER2_BASE, TIMER_A);
+            TimerLoadSet(TIMER2_BASE, TIMER_A, REQ_TIMEOUT_DELAY);
             if (current_comm_context == DEVICE_LOOKUP) {
                 TimerDisable(TIMER1_BASE, TIMER_A);
-                if (parse_received_device_lookup_id()) {
-                    ++comm_error_counter;
-                }
+                parse_received_device_lookup_id();
                 update_found_device_lookup_gui();
             } else {
-                if (parse_received_channel_values()) {
-                    ++comm_error_counter;
-                }
+                parse_received_channel_values();
                 update_gui = true;
             }
             current_comm_state = WAIT_TO_SEND;

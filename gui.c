@@ -123,7 +123,7 @@ int32_t touch_callback(uint32_t message, int32_t x, int32_t y) {
             lookup_reject_button.active = false;
             to_menu_button.active = false;
             clr_screen = true;
-            current_comm_state = SEND_MESSAGE;
+            update_gui = true;
         }
     }
     return 0;
