@@ -50,33 +50,23 @@ button lookup_reject_button = {
         .active = false
 };
 
-/* "Dose" button within MENU_GUI context */
-button to_dose_button = {
-        .coords = { .xMin = 4, .yMin = 180, .xMax = 102, .yMax = 220 },
+/* "Measurements" button within MENU_GUI context */
+button to_values_button = {
+        .coords = { .xMin = 10, .yMin = 180, .xMax = 155, .yMax = 220 },
         .button_color = GRAPHICS_COLOR_LIGHT_GRAY,
         .text_color = GRAPHICS_COLOR_BLACK,
         .font = &g_sFontCm20b,
-        .text = "Dose",
-        .active = false
-};
-
-/* "Dose Rate" button within MENU_GUI context */
-button to_dose_rate_button = {
-        .coords = { .xMin = 110, .yMin = 180, .xMax = 208, .yMax = 220 },
-        .button_color = GRAPHICS_COLOR_LIGHT_GRAY,
-        .text_color = GRAPHICS_COLOR_BLACK,
-        .font = &g_sFontCm20b,
-        .text = "Dose rate",
+        .text = "Measurements",
         .active = false
 };
 
 /* "Find Device" button within MENU_GUI context */
 button to_lookup_button = {
-        .coords = { .xMin = 216, .yMin = 180, .xMax = 316, .yMax = 220 },
+        .coords = { .xMin = 165, .yMin = 180, .xMax = 310, .yMax = 220 },
         .button_color = GRAPHICS_COLOR_LIGHT_GRAY,
         .text_color = GRAPHICS_COLOR_BLACK,
         .font = &g_sFontCm18b,
-        .text = "Dev. lookup",
+        .text = "Device lookup",
         .active = false
 };
 
@@ -105,10 +95,8 @@ int32_t touch_callback(uint32_t message, int32_t x, int32_t y) {
             lookup_accept_button.active = false;
             lookup_reject_button.active = false;
             TimerEnable(TIMER1_BASE, TIMER_A);
-        } else if (to_dose_button.active && button_was_pressed(&to_dose_button, x, y)) {
-            current_gui_context = DOSE_GUI;
-        } else if (to_dose_rate_button.active && button_was_pressed(&to_dose_rate_button, x, y)) {
-            current_gui_context = DOSE_RATE_GUI;
+        } else if (to_values_button.active && button_was_pressed(&to_values_button, x, y)) {
+            current_gui_context = VALUES_GUI;
         } else if (to_lookup_button.active && button_was_pressed(&to_lookup_button, x, y)) {
             current_gui_context = DEVICE_LOOKUP_GUI;
             current_comm_context = DEVICE_LOOKUP;
@@ -116,8 +104,7 @@ int32_t touch_callback(uint32_t message, int32_t x, int32_t y) {
             TimerLoadSet(TIMER1_BASE, TIMER_A, DEVICE_LOOKUP_MSG_DELAY);
         }
         if (initial_gui_context != current_gui_context) {
-            to_dose_button.active = false;
-            to_dose_rate_button.active = false;
+            to_values_button.active = false;
             to_lookup_button.active = false;
             lookup_accept_button.active = false;
             lookup_reject_button.active = false;
@@ -161,18 +148,11 @@ void gui_update() {
             _update_menu_gui();
         }
         break;
-    case DOSE_GUI:
+    case VALUES_GUI:
         if (clr_screen) {
-            _init_dose_gui();
+            _init_values_gui();
         } else {
-            _update_dose_gui();
-        }
-        break;
-    case DOSE_RATE_GUI:
-        if (clr_screen) {
-            _init_dose_rate_gui();
-        } else {
-            _update_dose_rate_gui();
+            _update_values_gui();
         }
         break;
     case ERROR_GUI:
@@ -272,8 +252,7 @@ void _init_menu_gui() {
     Graphics_drawString(&g_context, (int8_t*) string_buffer, -1, 4, 150, false);
     last_displayed_values[TEMP_CH] = ch_values[TEMP_CH].val;
 
-    draw_button(&to_dose_button);
-    draw_button(&to_dose_rate_button);
+    draw_button(&to_values_button);
     draw_button(&to_lookup_button);
 }
 
@@ -294,64 +273,66 @@ void _update_menu_gui() {
     }
 }
 
-void _init_dose_rate_gui() {
+void _init_values_gui() {
     char string_buffer[20] = { 0 };
     Graphics_setForegroundColor(&g_context, GRAPHICS_COLOR_WHITE);
     Graphics_setFont(&g_context, &g_sFontCm24b);
 
-    Graphics_drawString(&g_context, "Dose rate", -1, 4, 9, false);
+    Graphics_drawString(&g_context, "Measurements", -1, 4, 9, false);
     Graphics_drawLineH(&g_context, 1, 320, 40);
+    Graphics_drawString(&g_context, "Dose rate", -1, 4, 50, false);
+    Graphics_drawLineH(&g_context, 1, 320, 140);
+    Graphics_drawString(&g_context, "Dose", -1, 4, 150, false);
 
     Graphics_setFont(&g_context, &g_sFontCm48b);
 
     sprintf(string_buffer, "%0.2e", ch_values[DOSE_RATE_CH].val);
-    Graphics_drawString(&g_context, (int8_t*) string_buffer, -1, 4, 60, false);
+    Graphics_drawString(&g_context, (int8_t*) string_buffer, -1, 4, 80, false);
+
+    memset(string_buffer, 0, 20);
+    sprintf(string_buffer, "%0.2e", ch_values[DOSE_CH].val);
+    Graphics_drawString(&g_context, (int8_t*) string_buffer, -1, 4, 180, false);
 
     Graphics_setFont(&g_context, &g_sFontCm32b);
-    Graphics_drawString(&g_context, "Gy/h", -1, 205, 60, false);
+    Graphics_drawString(&g_context, "Gy/h", -1, 205, 90, false);
+    Graphics_drawString(&g_context, "Gy", -1, 205, 190, false);
 
     draw_button(&to_menu_button);
     last_displayed_values[DOSE_RATE_CH] = ch_values[DOSE_RATE_CH].val;
+    last_displayed_values[DOSE_CH] = ch_values[DOSE_CH].val;
 }
 
-void _update_dose_rate_gui() {
+void _update_values_gui() {
+    char string_buffer[20] = { 0 };
     if (last_displayed_values[DOSE_RATE_CH] != ch_values[DOSE_RATE_CH].val) {
-        const Graphics_Rectangle hide_current = { .xMin = 4, .yMin = 45, .xMax = 204, .yMax = 110 };
-        const Graphics_Rectangle hide_min_max = { .xMin = 55, .yMin = 145, .xMax = 149, .yMax = 210 };
-        char string_buffer[20] = { 0 };
+        const Graphics_Rectangle hide_dose_rate = { .xMin = 4, .yMin = 75, .xMax = 204, .yMax = 130 };
 
         Graphics_setForegroundColor(&g_context, GRAPHICS_COLOR_BLACK);
-        Graphics_fillRectangle(&g_context, &hide_current);
-        Graphics_fillRectangle(&g_context, &hide_min_max);
+        Graphics_fillRectangle(&g_context, &hide_dose_rate);
 
         Graphics_setForegroundColor(&g_context, GRAPHICS_COLOR_WHITE);
         Graphics_setFont(&g_context, &g_sFontCm48b);
 
         sprintf(string_buffer, "%0.2e", ch_values[DOSE_RATE_CH].val);
-        Graphics_drawString(&g_context, (int8_t*) string_buffer, -1, 4, 60, false);
+        Graphics_drawString(&g_context, (int8_t*) string_buffer, -1, 4, 80, false);
 
         last_displayed_values[DOSE_RATE_CH] = ch_values[DOSE_RATE_CH].val;
     }
-}
+    if (last_displayed_values[DOSE_CH] != ch_values[DOSE_CH].val) {
+        const Graphics_Rectangle hide_dose = { .xMin = 4, .yMin = 175, .xMax = 204, .yMax = 230 };
 
-void _init_dose_gui() {
-    char string_buffer[10] = { 0 };
-    Graphics_setForegroundColor(&g_context, GRAPHICS_COLOR_WHITE);
-    Graphics_setFont(&g_context, &g_sFontCm24b);
+        Graphics_setForegroundColor(&g_context, GRAPHICS_COLOR_BLACK);
+        Graphics_fillRectangle(&g_context, &hide_dose);
 
-    Graphics_drawString(&g_context, "Dose", -1, 4, 9, false);
-    Graphics_drawLineH(&g_context, 1, 320, 40);
+        Graphics_setForegroundColor(&g_context, GRAPHICS_COLOR_WHITE);
+        Graphics_setFont(&g_context, &g_sFontCm48b);
 
-    Graphics_setFont(&g_context, &g_sFontCm48b);
+        memset(string_buffer, 0, 20);
+        sprintf(string_buffer, "%0.2e", ch_values[DOSE_CH].val);
+        Graphics_drawString(&g_context, (int8_t*) string_buffer, -1, 4, 180, false);
 
-    sprintf(string_buffer, "%0.2e", ch_values[DOSE_CH].val);
-    Graphics_drawString(&g_context, (int8_t*) string_buffer, -1, 4, 60, false);
-
-    Graphics_setFont(&g_context, &g_sFontCm32b);
-    Graphics_drawString(&g_context, "Gy", -1, 205, 60, false);
-
-    draw_button(&to_menu_button);
-    last_displayed_values[DOSE_CH] = ch_values[DOSE_CH].val;
+        last_displayed_values[DOSE_CH] = ch_values[DOSE_CH].val;
+    }
 }
 
 void _update_dose_gui() {
