@@ -66,10 +66,10 @@ void _init_device_lookup_gui();
 void _update_device_lookup_gui();
 void _init_menu_gui();
 void _update_menu_gui();
-void _init_dose_gui();
-void _update_dose_gui();
 void _init_dose_rate_gui();
 void _update_dose_rate_gui();
+void _init_dose_gui();
+void _update_dose_gui();
 void _init_error_gui();
 
 #endif /* GUI_H_ */
