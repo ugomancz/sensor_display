@@ -66,7 +66,7 @@ button to_dose_rate_button = {
         .button_color = GRAPHICS_COLOR_LIGHT_GRAY,
         .text_color = GRAPHICS_COLOR_BLACK,
         .font = &g_sFontCm20b,
-        .text = "Dose Rate",
+        .text = "Dose rate",
         .active = false
 };
 
@@ -104,7 +104,6 @@ int32_t touch_callback(uint32_t message, int32_t x, int32_t y) {
         } else if (lookup_reject_button.active && button_was_pressed(&lookup_reject_button, x, y)) {
             lookup_accept_button.active = false;
             lookup_reject_button.active = false;
-            ++device_lookup_address;
             TimerEnable(TIMER1_BASE, TIMER_A);
         } else if (to_dose_button.active && button_was_pressed(&to_dose_button, x, y)) {
             current_gui_context = DOSE_GUI;
@@ -175,6 +174,9 @@ void gui_update() {
         } else {
             _update_dose_rate_gui();
         }
+        break;
+    case ERROR_GUI:
+        _init_error_gui();
         break;
     }
     clr_screen = false;
@@ -292,75 +294,8 @@ void _update_menu_gui() {
     }
 }
 
-void _init_dose_gui() {
-    char string_buffer[20] = { 0 };
-    Graphics_setForegroundColor(&g_context, GRAPHICS_COLOR_WHITE);
-    Graphics_setFont(&g_context, &g_sFontCm24b);
-
-    Graphics_drawString(&g_context, "Dose", -1, 4, 9, false);
-    Graphics_drawLineH(&g_context, 1, 320, 40);
-
-    Graphics_setFont(&g_context, &g_sFontCm48b);
-
-    sprintf(string_buffer, "%0.2e", ch_values[DOSE_CH].val);
-    Graphics_drawString(&g_context, (int8_t*) string_buffer, -1, 4, 60, false);
-
-    Graphics_setFont(&g_context, &g_sFontCm32b);
-    Graphics_drawString(&g_context, "Gy", -1, 205, 60, false);
-
-    Graphics_setFont(&g_context, &g_sFontCm22b);
-    Graphics_drawString(&g_context, "Last minute extremes:", -1, 4, 120, false);
-
-    Graphics_setFont(&g_context, &g_sFontCm20b);
-
-    memset(string_buffer, 0, 20);
-    //sprintf(string_buffer, "%0.2e", get_history_min());
-    Graphics_drawString(&g_context, (int8_t*) string_buffer, -1, 58, 155, false);
-    Graphics_drawString(&g_context, "Min:", -1, 4, 155, false);
-    Graphics_drawString(&g_context, "Gy", -1, 150, 155, false);
-
-    memset(string_buffer, 0, 20);
-    //sprintf(string_buffer, "%0.2e", get_history_max());
-    Graphics_drawString(&g_context, (int8_t*) string_buffer, -1, 58, 180, false);
-    Graphics_drawString(&g_context, "Max:", -1, 4, 180, false);
-    Graphics_drawString(&g_context, "Gy", -1, 150, 180, false);
-
-    draw_button(&to_menu_button);
-    last_displayed_values[DOSE_CH] = ch_values[DOSE_CH].val;
-}
-
-void _update_dose_gui() {
-    if (last_displayed_values[DOSE_CH] != ch_values[DOSE_CH].val) {
-        const Graphics_Rectangle hide_current = { .xMin = 4, .yMin = 45, .xMax = 204, .yMax = 110 };
-        const Graphics_Rectangle hide_min_max = { .xMin = 55, .yMin = 145, .xMax = 149, .yMax = 210 };
-        char string_buffer[20] = { 0 };
-
-        Graphics_setForegroundColor(&g_context, GRAPHICS_COLOR_BLACK);
-        Graphics_fillRectangle(&g_context, &hide_current);
-        Graphics_fillRectangle(&g_context, &hide_min_max);
-
-        Graphics_setForegroundColor(&g_context, GRAPHICS_COLOR_WHITE);
-        Graphics_setFont(&g_context, &g_sFontCm48b);
-
-        sprintf(string_buffer, "%0.2e", ch_values[DOSE_CH].val);
-        Graphics_drawString(&g_context, (int8_t*) string_buffer, -1, 4, 60, false);
-
-        Graphics_setFont(&g_context, &g_sFontCm20b);
-
-        memset(string_buffer, 0, 20);
-        //sprintf(string_buffer, "%0.2e", get_history_min());
-        Graphics_drawString(&g_context, (int8_t*) string_buffer, -1, 58, 155, false);
-
-        memset(string_buffer, 0, 20);
-        //sprintf(string_buffer, "%0.2e", get_history_max());
-        Graphics_drawString(&g_context, (int8_t*) string_buffer, -1, 58, 180, false);
-
-        last_displayed_values[DOSE_CH] = ch_values[DOSE_CH].val;
-    }
-}
-
 void _init_dose_rate_gui() {
-    char string_buffer[10] = { 0 };
+    char string_buffer[20] = { 0 };
     Graphics_setForegroundColor(&g_context, GRAPHICS_COLOR_WHITE);
     Graphics_setFont(&g_context, &g_sFontCm24b);
 
@@ -382,10 +317,12 @@ void _init_dose_rate_gui() {
 void _update_dose_rate_gui() {
     if (last_displayed_values[DOSE_RATE_CH] != ch_values[DOSE_RATE_CH].val) {
         const Graphics_Rectangle hide_current = { .xMin = 4, .yMin = 45, .xMax = 204, .yMax = 110 };
-        char string_buffer[10] = { 0 };
+        const Graphics_Rectangle hide_min_max = { .xMin = 55, .yMin = 145, .xMax = 149, .yMax = 210 };
+        char string_buffer[20] = { 0 };
 
         Graphics_setForegroundColor(&g_context, GRAPHICS_COLOR_BLACK);
         Graphics_fillRectangle(&g_context, &hide_current);
+        Graphics_fillRectangle(&g_context, &hide_min_max);
 
         Graphics_setForegroundColor(&g_context, GRAPHICS_COLOR_WHITE);
         Graphics_setFont(&g_context, &g_sFontCm48b);
@@ -395,4 +332,55 @@ void _update_dose_rate_gui() {
 
         last_displayed_values[DOSE_RATE_CH] = ch_values[DOSE_RATE_CH].val;
     }
+}
+
+void _init_dose_gui() {
+    char string_buffer[10] = { 0 };
+    Graphics_setForegroundColor(&g_context, GRAPHICS_COLOR_WHITE);
+    Graphics_setFont(&g_context, &g_sFontCm24b);
+
+    Graphics_drawString(&g_context, "Dose", -1, 4, 9, false);
+    Graphics_drawLineH(&g_context, 1, 320, 40);
+
+    Graphics_setFont(&g_context, &g_sFontCm48b);
+
+    sprintf(string_buffer, "%0.2e", ch_values[DOSE_CH].val);
+    Graphics_drawString(&g_context, (int8_t*) string_buffer, -1, 4, 60, false);
+
+    Graphics_setFont(&g_context, &g_sFontCm32b);
+    Graphics_drawString(&g_context, "Gy", -1, 205, 60, false);
+
+    draw_button(&to_menu_button);
+    last_displayed_values[DOSE_CH] = ch_values[DOSE_CH].val;
+}
+
+void _update_dose_gui() {
+    if (last_displayed_values[DOSE_CH] != ch_values[DOSE_CH].val) {
+        const Graphics_Rectangle hide_current = { .xMin = 4, .yMin = 45, .xMax = 204, .yMax = 110 };
+        char string_buffer[10] = { 0 };
+
+        Graphics_setForegroundColor(&g_context, GRAPHICS_COLOR_BLACK);
+        Graphics_fillRectangle(&g_context, &hide_current);
+
+        Graphics_setForegroundColor(&g_context, GRAPHICS_COLOR_WHITE);
+        Graphics_setFont(&g_context, &g_sFontCm48b);
+
+        sprintf(string_buffer, "%0.2e", ch_values[DOSE_CH].val);
+        Graphics_drawString(&g_context, (int8_t*) string_buffer, -1, 4, 60, false);
+
+        last_displayed_values[DOSE_CH] = ch_values[DOSE_CH].val;
+    }
+}
+
+void _init_error_gui() {
+    Graphics_setForegroundColor(&g_context, GRAPHICS_COLOR_RED);
+    Graphics_setFont(&g_context, &g_sFontCm48b);
+
+    Graphics_drawStringCentered(&g_context, (int8_t*) "Error!", -1, 160, 60, false);
+
+    Graphics_setForegroundColor(&g_context, GRAPHICS_COLOR_WHITE);
+    Graphics_setFont(&g_context, &g_sFontCm20b);
+
+    Graphics_drawStringCentered(&g_context, (int8_t*) "Connection to the sensor lost.", -1, 160, 125, false);
+    Graphics_drawStringCentered(&g_context, (int8_t*) "Reboot required.", -1, 160, 145, false);
 }

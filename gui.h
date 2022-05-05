@@ -27,7 +27,7 @@ typedef struct {
 
 /* Represents the current GUI context (i.e. currently displayed screen) */
 typedef enum {
-    DEVICE_LOOKUP_GUI, MENU_GUI, DOSE_GUI, DOSE_RATE_GUI
+    DEVICE_LOOKUP_GUI, MENU_GUI, DOSE_GUI, DOSE_RATE_GUI, ERROR_GUI
 } gui_context;
 
 /* Structures used by the display driver */
@@ -66,9 +66,10 @@ void _init_device_lookup_gui();
 void _update_device_lookup_gui();
 void _init_menu_gui();
 void _update_menu_gui();
-void _init_dose_gui();
-void _update_dose_gui();
 void _init_dose_rate_gui();
 void _update_dose_rate_gui();
+void _init_dose_gui();
+void _update_dose_gui();
+void _init_error_gui();
 
 #endif /* GUI_H_ */

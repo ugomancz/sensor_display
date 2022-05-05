@@ -5,15 +5,15 @@
  *      Author: ondra
  */
 
-#ifndef MDG04_H_
-#define MDG04_H_
+#ifndef VF_STANDARD_H_
+#define VF_STANDARD_H_
 
 #include <stdint.h>
 
 #define ID_REG_START_ADDR 0x0000
-#define TEMP_REG_START_ADDR 0x0114
-#define DOSE_REG_START_ADDR 0x010A
 #define DOSE_RATE_REG_START_ADDR 0x0100
+#define DOSE_REG_START_ADDR 0x010A
+#define TEMP_REG_START_ADDR 0x0114
 
 #define ID_REGS_COUNT 0x0024
 #define CH_VAL_REGS_COUNT 0x000A
@@ -49,4 +49,4 @@ typedef struct {
 void format_hw_id(char *buffer, uint32_t id);
 void format_sw_id(char *buffer, uint32_t id);
 
-#endif /* MDG04_H_ */
+#endif /* VF_STANDARD_H_ */
