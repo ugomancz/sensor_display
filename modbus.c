@@ -12,11 +12,15 @@
 fn_code last_fn_used;
 int16_t last_dev_addr = -1;
 
-/*
- * This function takes device address, register read start address and number of registers to be read.
- * It then generates a ModBus-RTU ADU with "Read Input Registers" request and stores it in the output_dest.
- * After function is finished, *output_pos contains number of bytes written to output_dest.
- */
+void _switch_register_endianity(uint8_t *data, const unsigned int bytes) {
+    uint8_t temp;
+    for (int i = 0; i < bytes; i += 2) {
+        temp = data[i + 1];
+        data[i + 1] = data[i];
+        data[i] = temp;
+    }
+}
+
 int gen_mb_read_input_regs(uint8_t device_addr, uint16_t reg_addr_start, uint16_t regs_count, uint8_t *output_dest,
         volatile uint8_t *output_pos) {
     output_dest[(*output_pos)++] = device_addr;
@@ -37,12 +41,6 @@ int gen_mb_read_input_regs(uint8_t device_addr, uint16_t reg_addr_start, uint16_
     return SUCCESS;
 }
 
-/*
- * This function takes a ModBus-RTU "Read Input Registers" request response ADU, checks validity of
- * the response and parses the received data into output_dest.
- * As part of the parsing process, data is converted into little-endian.
- * In case of an error, an appropriate value is returned.
- */
 int decode_mb_read_input_regs(uint8_t *data, uint8_t data_length, void *output_dest) {
     if (data[0] != last_dev_addr) {
         return INVALID_DEV_ADDR;
@@ -61,16 +59,7 @@ int decode_mb_read_input_regs(uint8_t *data, uint8_t data_length, void *output_d
     }
     /* Adding 3 to strip initial address, function code and data length bytes */
     memcpy(output_dest, data + 3, data[2]);
-    switch_register_endianity(output_dest, data[2]);
+    _switch_register_endianity(output_dest, data[2]);
 
     return SUCCESS;
-}
-
-void switch_register_endianity(uint8_t *data, const unsigned int bytes) {
-    uint8_t temp;
-    for (int i = 0; i < bytes; i += 2) {
-        temp = data[i + 1];
-        data[i + 1] = data[i];
-        data[i] = temp;
-    }
 }
