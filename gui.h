@@ -38,7 +38,7 @@ Graphics_Context g_context;
 /* Tracks whether the whole screen should be cleared before drawing new GUI elements.
  * Typically happens when GUI context is switched.
  */
-extern volatile bool clr_screen;
+extern volatile uint8_t clr_screen;
 
 /* Flag set to true if a GUI update is required */
 extern volatile bool update_gui;

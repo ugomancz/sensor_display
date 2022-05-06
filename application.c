@@ -153,9 +153,9 @@ int main(void) {
             TimerDisable(TIMER2_BASE, TIMER_A);
             current_gui_context = ERROR_GUI;
             current_comm_state = WAIT_TO_SEND;
-            clr_screen = true;
+            ++clr_screen;
         }
-        if (clr_screen || update_gui) {
+        if (clr_screen > 0 || update_gui) {
             gui_update();
         }
         switch (current_comm_state) {

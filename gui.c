@@ -16,7 +16,7 @@ extern Graphics_Display Kentec_GD;
 extern Graphics_Context g_context;
 
 volatile gui_context current_gui_context = DEVICE_LOOKUP_GUI;
-volatile bool clr_screen = true;
+volatile uint8_t clr_screen = 1;
 volatile bool update_gui = true;
 float last_displayed_values[3] = { 0 };
 
@@ -78,12 +78,12 @@ bool button_was_pressed(button *b, int32_t x, int32_t y) {
 /* Touch screen interrupt handler */
 int32_t touch_callback(uint32_t message, int32_t x, int32_t y) {
     if (message == MSG_PTR_UP) {
-        gui_context initial_gui_context = current_gui_context;
         if (to_menu_button.active && button_was_pressed(&to_menu_button, x, y)) {
             current_gui_context = MENU_GUI;
             TimerLoadSet(TIMER1_BASE, TIMER_A, FETCH_CH_VALUES_MSG_DELAY);
             TimerEnable(TIMER1_BASE, TIMER_A);
             current_comm_context = FETCH_CH_VALUES;
+            ++clr_screen;
         } else if (lookup_accept_button.active && button_was_pressed(&lookup_accept_button, x, y)) {
             current_gui_context = MENU_GUI;
             TimerLoadSet(TIMER1_BASE, TIMER_A, FETCH_CH_VALUES_MSG_DELAY);
@@ -91,26 +91,22 @@ int32_t touch_callback(uint32_t message, int32_t x, int32_t y) {
             current_comm_context = FETCH_CH_VALUES;
             device_address = device_lookup_address;
             device_id = device_lookup_id;
+            ++clr_screen;
         } else if (lookup_reject_button.active && button_was_pressed(&lookup_reject_button, x, y)) {
             lookup_accept_button.active = false;
             lookup_reject_button.active = false;
             TimerEnable(TIMER1_BASE, TIMER_A);
+            update_gui = true;
         } else if (to_values_button.active && button_was_pressed(&to_values_button, x, y)) {
             current_gui_context = VALUES_GUI;
+            ++clr_screen;
         } else if (to_lookup_button.active && button_was_pressed(&to_lookup_button, x, y)) {
             current_gui_context = DEVICE_LOOKUP_GUI;
             current_comm_context = DEVICE_LOOKUP;
-            device_lookup_address = 0x01;
             TimerLoadSet(TIMER1_BASE, TIMER_A, DEVICE_LOOKUP_MSG_DELAY);
-        }
-        if (initial_gui_context != current_gui_context) {
-            to_values_button.active = false;
-            to_lookup_button.active = false;
-            lookup_accept_button.active = false;
-            lookup_reject_button.active = false;
-            to_menu_button.active = false;
-            clr_screen = true;
-            update_gui = true;
+            device_lookup_address = 0x01;
+            current_comm_state = SEND_MESSAGE;
+            ++clr_screen;
         }
     }
     return 0;
@@ -130,26 +126,31 @@ void draw_button(button *b) {
 /* Top level function which updates the screen contents based on the current GUI context */
 void gui_update() {
     update_gui = false;
-    if (clr_screen) {
+    if (clr_screen > 0) {
         Graphics_clearDisplay(&g_context);
+        to_values_button.active = false;
+        to_lookup_button.active = false;
+        lookup_accept_button.active = false;
+        lookup_reject_button.active = false;
+        to_menu_button.active = false;
     }
     switch (current_gui_context) {
     case DEVICE_LOOKUP_GUI:
-        if (clr_screen) {
+        if (clr_screen > 0) {
             _init_device_lookup_gui();
         } else {
             _update_device_lookup_gui();
         }
         break;
     case MENU_GUI:
-        if (clr_screen) {
+        if (clr_screen > 0) {
             _init_menu_gui();
         } else {
             _update_menu_gui();
         }
         break;
     case VALUES_GUI:
-        if (clr_screen) {
+        if (clr_screen > 0) {
             _init_values_gui();
         } else {
             _update_values_gui();
@@ -159,7 +160,9 @@ void gui_update() {
         _init_error_gui();
         break;
     }
-    clr_screen = false;
+    if (clr_screen > 0) {
+        --clr_screen;
+    }
 }
 
 void _init_device_lookup_gui() {
