@@ -39,7 +39,7 @@ extern volatile uint8_t device_address;
 extern volatile uint8_t device_lookup_address;
 
 /* Counter to keep track of request timeouts */
-extern volatile uint8_t request_timeout_counter;
+extern volatile uint8_t comm_error_counter;
 
 /* Tracks the current context of communication */
 extern volatile comm_context current_comm_context;

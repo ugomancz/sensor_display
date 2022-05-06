@@ -66,7 +66,7 @@ void send_message_timeout_handler() {
 
 void no_response_timeout_handler() {
     TimerIntClear(TIMER2_BASE, TIMER_TIMA_TIMEOUT);
-    ++request_timeout_counter;
+    ++comm_error_counter;
 }
 
 int main(void) {
@@ -148,7 +148,7 @@ int main(void) {
     TimerEnable(TIMER1_BASE, TIMER_A);
 
     while (1) {
-        if (request_timeout_counter >= 5 && current_gui_context != ERROR_GUI) {
+        if (comm_error_counter >= 5 && current_gui_context != ERROR_GUI) {
             TimerDisable(TIMER1_BASE, TIMER_A);
             TimerDisable(TIMER2_BASE, TIMER_A);
             current_gui_context = ERROR_GUI;
@@ -174,10 +174,14 @@ int main(void) {
             TimerLoadSet(TIMER2_BASE, TIMER_A, REQ_TIMEOUT_DELAY);
             if (current_comm_context == DEVICE_LOOKUP) {
                 TimerDisable(TIMER1_BASE, TIMER_A);
-                parse_received_device_lookup_id();
+                if (parse_received_device_lookup_id()) {
+                    ++comm_error_counter;
+                }
                 update_found_device_lookup_gui();
             } else {
-                parse_received_channel_values();
+                if (parse_received_channel_values()) {
+                    ++comm_error_counter;
+                }
                 update_gui = true;
             }
             current_comm_state = WAIT_TO_SEND;
