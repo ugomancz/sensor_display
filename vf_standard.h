@@ -15,8 +15,13 @@
 #define DOSE_REG_START_ADDR 0x010A
 #define TEMP_REG_START_ADDR 0x0114
 
+#define DOSE_RATE_PAR_REG_START_ADDR 0x0200
+#define DOSE_PAR_REG_START_ADDR 0x0220
+#define TEMP_PAR_REG_START_ADDR 0x0240
+
 #define ID_REGS_COUNT 0x0024
 #define CH_VAL_REGS_COUNT 0x000A
+#define CH_PAR_REGS_COUNT 0x0020
 
 typedef union {
     uint32_t time;
@@ -45,6 +50,20 @@ typedef struct {
     uint16_t par_cnt;
     uint16_t _res;
 } ch_val;
+
+typedef struct {
+    float llmr;
+    float ulmr;
+    float tll1;
+    float tll2;
+    float tul1;
+    float tul2;
+    uint16_t pq;
+    uint16_t _res1;
+    uint16_t unit;
+    uint16_t par_cnt;
+    uint8_t ext[32];
+} ch_par;
 
 void format_hw_id(char *buffer, uint32_t id);
 void format_sw_id(char *buffer, uint32_t id);

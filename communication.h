@@ -24,7 +24,7 @@ typedef enum {
 
 /* Represents the current context of communication */
 typedef enum {
-    DEVICE_LOOKUP, FETCH_CH_VALUES
+    DEVICE_LOOKUP, FETCH_CH_VALUES, FETCH_CH_PARS
 } comm_context;
 
 /* Represents specific channel values in the ch_values array */
@@ -62,6 +62,12 @@ extern dev_id device_lookup_id;
 /* Array of ch_val structures to hold the channel value data of all three channels */
 extern ch_val ch_values[3];
 
+/* Array of ch_par structures to hold the channel parameters data of all three channels */
+extern ch_par ch_pars[3];
+
+/* Array that keeps track of changes in par_cnt parameter of ch_val structures */
+extern uint16_t last_par_cnts[3];
+
 /* Sets the direction of communication on the serial line */
 void set_comm_direction(direction dir);
 
@@ -77,7 +83,7 @@ void reset_rx_buffer();
 /* Sends the data in TX buffer to the UART */
 void uart_send();
 
-/* Sends a request to the sensor for all three fast channel ch_val structures */
+/* Sends a request to the sensor for all three fast channel's ch_val structures */
 void request_current_channel_values();
 
 /* Parses the received channel values data into the ch_values[] array */
@@ -88,5 +94,11 @@ void request_device_lookup_id();
 
 /* Parses the received dev_id into the device_id structure */
 int parse_received_device_lookup_id();
+
+/* Sends a request to the sensor for all three fast channel's ch_par structures */
+void request_current_channel_pars();
+
+/* Parses the received channel parameters data into the ch_pars[] array */
+int parse_received_channel_pars();
 
 #endif /* COMMUNICATION_H_ */

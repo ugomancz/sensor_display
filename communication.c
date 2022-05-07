@@ -28,6 +28,8 @@ volatile uint8_t rx_buffer_pos = 0;
 dev_id device_id = { 0 };
 dev_id device_lookup_id = { 0 };
 ch_val ch_values[3] = { 0 };
+ch_par ch_pars[3] = { 0 };
+uint16_t last_par_cnts[3] = { 0 };
 
 void set_comm_direction(direction dir) {
     GPIOPinWrite(GPIO_PORTH_BASE, GPIO_PIN_4, (dir == TRANSMIT) ? 0xFF : 0x00);
@@ -80,6 +82,21 @@ void request_device_lookup_id() {
 
 int parse_received_device_lookup_id() {
     int retval = decode_mb_read_input_regs(rx_buffer, rx_buffer_pos, &device_lookup_id);
+    if (retval == SUCCESS) {
+        reset_rx_buffer();
+    }
+    return retval;
+}
+
+void request_current_channel_pars() {
+    gen_mb_read_input_regs(device_address, DOSE_RATE_PAR_REG_START_ADDR, CH_PAR_REGS_COUNT * 3, tx_buffer,
+            &tx_buffer_pos);
+    uart_send();
+    reset_tx_buffer();
+}
+
+int parse_received_channel_pars() {
+    int retval = decode_mb_read_input_regs(rx_buffer, rx_buffer_pos, &ch_pars);
     if (retval == SUCCESS) {
         reset_rx_buffer();
     }

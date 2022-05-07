@@ -163,8 +163,11 @@ int main(void) {
             if (current_comm_context == DEVICE_LOOKUP) {
                 request_device_lookup_id();
                 update_gui = true;
-            } else {
+            } else if (current_comm_context == FETCH_CH_VALUES) {
                 request_current_channel_values();
+                TimerEnable(TIMER2_BASE, TIMER_A);
+            } else {
+                request_current_channel_pars();
                 TimerEnable(TIMER2_BASE, TIMER_A);
             }
             current_comm_state = WAIT_TO_RECEIVE;
@@ -178,10 +181,24 @@ int main(void) {
                     ++comm_error_counter;
                 }
                 update_found_device_lookup_gui();
-            } else {
+            } else if (current_comm_context == FETCH_CH_VALUES) {
                 if (parse_received_channel_values()) {
                     ++comm_error_counter;
                 }
+                if ((last_par_cnts[DOSE_RATE_CH] != ch_values[DOSE_RATE_CH].par_cnt)
+                        || (last_par_cnts[DOSE_CH] != ch_values[DOSE_CH].par_cnt)
+                        || (last_par_cnts[TEMP_CH] != ch_values[TEMP_CH].par_cnt)) {
+                    current_comm_context = FETCH_CH_PARS;
+                    last_par_cnts[DOSE_RATE_CH] = ch_values[DOSE_RATE_CH].par_cnt;
+                    last_par_cnts[DOSE_CH] = ch_values[DOSE_CH].par_cnt;
+                    last_par_cnts[TEMP_CH] = ch_values[TEMP_CH].par_cnt;
+                }
+                update_gui = true;
+            } else {
+                if (parse_received_channel_pars()) {
+                    ++comm_error_counter;
+                }
+                current_comm_context = FETCH_CH_VALUES;
                 update_gui = true;
             }
             current_comm_state = WAIT_TO_SEND;
