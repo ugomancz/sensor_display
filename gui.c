@@ -91,6 +91,8 @@ int32_t touch_callback(uint32_t message, int32_t x, int32_t y) {
             current_comm_context = FETCH_CH_VALUES;
             device_address = device_lookup_address;
             device_id = device_lookup_id;
+            memset(last_par_cnts, 0, sizeof(last_par_cnts));
+            current_comm_state = SEND_MESSAGE;
             ++clr_screen;
         } else if (lookup_reject_button.active && button_was_pressed(&lookup_reject_button, x, y)) {
             lookup_accept_button.active = false;
