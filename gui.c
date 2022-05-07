@@ -251,7 +251,8 @@ void _init_menu_gui() {
     Graphics_drawString(&g_context, (int8_t*) string_buffer, -1, 4, 130, false);
 
     memset(string_buffer, 0, 25);
-    sprintf(string_buffer, "Temp: %0.2f deg. C", ch_values[TEMP_CH].val);
+    int chars_written = sprintf(string_buffer, "Temp: %0.2f ", ch_values[TEMP_CH].val);
+    sprintf(string_buffer + chars_written, UNITS[ch_pars[TEMP_CH].unit]);
     Graphics_drawString(&g_context, (int8_t*) string_buffer, -1, 4, 150, false);
     last_displayed_values[TEMP_CH] = ch_values[TEMP_CH].val;
 
@@ -270,7 +271,8 @@ void _update_menu_gui() {
         Graphics_setForegroundColor(&g_context, GRAPHICS_COLOR_WHITE);
         Graphics_setFont(&g_context, &g_sFontCm20);
 
-        sprintf(string_buffer, "%0.2f deg. C", ch_values[TEMP_CH].val);
+        int chars_written = sprintf(string_buffer, "%0.2f ", ch_values[TEMP_CH].val);
+        sprintf(string_buffer + chars_written, UNITS[ch_pars[TEMP_CH].unit]);
         Graphics_drawString(&g_context, (int8_t*) string_buffer, -1, 70, 150, false);
         last_displayed_values[TEMP_CH] = ch_values[TEMP_CH].val;
     }
@@ -297,8 +299,8 @@ void _init_values_gui() {
     Graphics_drawString(&g_context, (int8_t*) string_buffer, -1, 4, 180, false);
 
     Graphics_setFont(&g_context, &g_sFontCm32b);
-    Graphics_drawString(&g_context, "Gy/h", -1, 205, 90, false);
-    Graphics_drawString(&g_context, "Gy", -1, 205, 190, false);
+    Graphics_drawString(&g_context, (int8_t*) UNITS[ch_pars[DOSE_RATE_CH].unit], -1, 205, 90, false);
+    Graphics_drawString(&g_context, (int8_t*) UNITS[ch_pars[DOSE_CH].unit], -1, 205, 190, false);
 
     draw_button(&to_menu_button);
     last_displayed_values[DOSE_RATE_CH] = ch_values[DOSE_RATE_CH].val;

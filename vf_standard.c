@@ -8,6 +8,13 @@
 #include <string.h>
 #include <stdio.h>
 
+const char UNITS[50][12] = { { "NaN" }, { "cps" }, { "cpm" }, { "Bq" }, { "Bq/cm2" }, { "Bq/m3" }, { "Gy/h" }, { "Sv/h" },
+        { "R/h" }, { "dpm" }, { "deg. C" }, { "K" }, { "Pa" }, { "m3" }, { "cps/cm2" }, { "m3/s" }, { "n/(cm2/s)" }, { "%" },
+        { "Gy/s" }, { "Sv/s" }, { "m3/h" }, { "deg. F" }, { "Ci" }, { "Psi" }, { "cm3" }, { "ft3/min" }, { "rem/h" },
+        { "rad/h" }, { "Ci/cm3" }, { "Ci/cm2" }, { "l/min" }, { "n/(cm2)" }, { "1/s" }, { "1/(cm2/s)" },
+        { "1/(cm2/min)" }, { "ppm" }, { "Gy" }, { "Sv" }, { "kg" }, { "V" }, { "A" }, { "m/s" }, { "s" },
+        { "kg/h" }, { "pps" }, { "pps/cm2" }, { "min" }, { "h" }, { "m" }, { "W" } };
+
 /* Saves properly formatted HW_ID to buffer based on id */
 void format_hw_id(char *buffer, uint32_t id) {
     char *p = buffer + strlen(buffer);

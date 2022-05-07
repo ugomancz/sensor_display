@@ -65,6 +65,8 @@ typedef struct {
     uint8_t ext[32];
 } ch_par;
 
+extern const char UNITS[50][12];
+
 void format_hw_id(char *buffer, uint32_t id);
 void format_sw_id(char *buffer, uint32_t id);
 

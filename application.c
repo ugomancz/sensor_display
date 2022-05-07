@@ -192,8 +192,9 @@ int main(void) {
                     last_par_cnts[DOSE_RATE_CH] = ch_values[DOSE_RATE_CH].par_cnt;
                     last_par_cnts[DOSE_CH] = ch_values[DOSE_CH].par_cnt;
                     last_par_cnts[TEMP_CH] = ch_values[TEMP_CH].par_cnt;
+                } else {
+                    update_gui = true;
                 }
-                update_gui = true;
             } else {
                 if (parse_received_channel_pars()) {
                     ++comm_error_counter;
