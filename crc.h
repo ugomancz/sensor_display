@@ -1,4 +1,6 @@
 /*
+ * crc.h
+ *
  * Taken from VF Standard Q-7P1-06 document by VF, a.s.
  */
 
@@ -7,9 +9,7 @@
 
 #include <stdint.h>
 
-extern const uint16_t crc_table[];
-
-uint16_t get_crc(const uint8_t *nData, uint16_t len);
-uint16_t to_modbus_compatible(uint16_t original_crc);
+/* Calculates the CRC of the given data using a CRC table. */
+uint16_t get_crc(const uint8_t *data, uint16_t len);
 
 #endif /* CRC_H_ */

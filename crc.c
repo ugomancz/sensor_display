@@ -1,4 +1,6 @@
 /*
+ * crc.c
+ *
  * Taken from VF Standard Q-7P1-06 document by VF, a.s.
  */
 
@@ -25,17 +27,13 @@ const uint16_t crc_table[] = { 0x0000, 0xC0C1, 0xC181, 0x0140, 0xC301, 0x03C0, 0
         0x4F40, 0x8D01, 0x4DC0, 0x4C80, 0x8C41, 0x4400, 0x84C1, 0x8581, 0x4540, 0x8701, 0x47C0, 0x4680, 0x8641, 0x8201,
         0x42C0, 0x4380, 0x8341, 0x4100, 0x81C1, 0x8081, 0x4040 };
 
-uint16_t get_crc(const uint8_t *nData, uint16_t len) {
+uint16_t get_crc(const uint8_t *data, uint16_t len) {
     uint8_t temp;
     uint16_t crc = 0xFFFF;
     while (len--) {
-        temp = *nData++ ^ crc;
+        temp = *data++ ^ crc;
         crc >>= 8;
         crc ^= crc_table[temp];
     }
     return crc;
-}
-
-uint16_t to_modbus_compatible(uint16_t original_crc) {
-    return (original_crc << 8) | (original_crc >> 8);
 }
