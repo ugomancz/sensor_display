@@ -1,23 +1,13 @@
 /*
  * application.c
  *
- *  Created on: 05 Jan 2022
- *      Author: ondra
+ * Author: Ondrej Kostik
  */
 #include "application.h"
 #include "communication.h"
 #include "gui.h"
 #include <ti/devices/msp432e4/driverlib/driverlib.h>
-#include <ti/devices/msp432e4/driverlib/gpio.h>
-#include <ti/devices/msp432e4/driverlib/interrupt.h>
-#include <ti/devices/msp432e4/driverlib/pin_map.h>
-#include <ti/devices/msp432e4/driverlib/sysctl.h>
-#include <ti/devices/msp432e4/driverlib/uart.h>
-#include <ti/devices/msp432e4/inc/msp432e411y.h>
-#include <ti/drivers/uart/UARTMSP432E4.h>
-#include <stdlib.h>
 
-volatile int retval = 0;
 /* UART RX/TX interrupt handler */
 void uart_int_handler(void) {
     uint32_t ui32Status;
@@ -48,11 +38,13 @@ void uart_int_handler(void) {
     }
 }
 
+/* Interrupt handler for the T15 "message received" timer */
 void msg_received_timeout_handler() {
     TimerIntClear(TIMER0_BASE, TIMER_TIMA_TIMEOUT);
     current_comm_state = MESSAGE_RECEIVED;
 }
 
+/* Interrupt handler for the "send_message" timer */
 void send_message_timeout_handler() {
     TimerIntClear(TIMER1_BASE, TIMER_TIMA_TIMEOUT);
     current_comm_state = SEND_MESSAGE;
@@ -64,15 +56,31 @@ void send_message_timeout_handler() {
     }
 }
 
+/* Interrupt handler for the "request timeout" timer */
 void no_response_timeout_handler() {
     TimerIntClear(TIMER2_BASE, TIMER_TIMA_TIMEOUT);
     ++comm_error_counter;
 }
 
-static bool ch_pars_up_to_date() {
-
+/*
+ * Returns true if the par_cnt member of any of the currently fetched ch_val
+ * structures is different when compared to the par_cnt of the last fetched data.
+ */
+static bool ch_pars_need_refresh() {
+    if ((last_par_cnts[DOSE_RATE_CH] != ch_values[DOSE_RATE_CH].par_cnt)
+            || (last_par_cnts[DOSE_CH] != ch_values[DOSE_CH].par_cnt)
+            || (last_par_cnts[TEMP_CH] != ch_values[TEMP_CH].par_cnt)) {
+        return true;
+    }
+    return false;
 }
 
+/*
+ * The entry point to the application.
+ * Initialises all the required peripherals and begins execution with the
+ * device lookup context. An infinite loop then handles the communication
+ * with the target sensor and GUI events.
+ */
 int main(void) {
     uint32_t ui32SysClock;
     volatile uint32_t ui32Loop;
@@ -124,6 +132,10 @@ int main(void) {
     }
     TimerConfigure(TIMER1_BASE, TIMER_CFG_PERIODIC);
     TimerIntRegister(TIMER1_BASE, TIMER_A, send_message_timeout_handler);
+    /*
+     * Initialising with the DEVICE_LOOKUP_MSG_DELAY value because the first
+     * context in which the device is after boot is the Device Lookup.
+     */
     TimerLoadSet(TIMER1_BASE, TIMER_A, DEVICE_LOOKUP_MSG_DELAY);
     IntEnable(INT_TIMER1A);
     TimerIntEnable(TIMER1_BASE, TIMER_TIMA_TIMEOUT);
@@ -140,7 +152,7 @@ int main(void) {
 
     /* Initialise the RX/TX buffers */
     if (init_comm_buffers()) {
-        exit(-1);
+        return -1;
     }
 
     /* Initialise the LCD and touch screen driver */
@@ -169,6 +181,13 @@ int main(void) {
         switch (current_comm_state) {
         case SEND_MESSAGE:
             send_request();
+            /*
+             * The GUI is updated only in the device lookup context to draw
+             * the currently probed address onto the display. Similarly, the
+             * "request timeout" timer is only started in the other contexts
+             * as during the device lookup request timeouts are expected and
+             * handled accordingly using the "send message" timer.
+             */
             if (current_comm_context == DEVICE_LOOKUP) {
                 update_gui = true;
             } else {
@@ -177,25 +196,41 @@ int main(void) {
             current_comm_state = WAIT_TO_RECEIVE;
             break;
         case MESSAGE_RECEIVED:
+            /*
+             * Since there's a message received, the "request timeout" timer
+             * can be disabled and it's value reset.
+             */
             TimerDisable(TIMER2_BASE, TIMER_A);
             TimerLoadSet(TIMER2_BASE, TIMER_A, REQ_TIMEOUT_DELAY);
             if (process_requested_data()) {
                 ++comm_error_counter;
             }
+            /*
+             * In the device lookup context, the "send message" timer gets
+             * disabled here, because the actions following the "device found"
+             * depend on the user's input.
+             */
             if (current_comm_context == DEVICE_LOOKUP) {
                 TimerDisable(TIMER1_BASE, TIMER_A);
                 update_found_device_lookup_gui();
-            } else if (current_comm_context == FETCH_CH_VALUES) {
-                if ((last_par_cnts[DOSE_RATE_CH] != ch_values[DOSE_RATE_CH].par_cnt)
-                        || (last_par_cnts[DOSE_CH] != ch_values[DOSE_CH].par_cnt)
-                        || (last_par_cnts[TEMP_CH] != ch_values[TEMP_CH].par_cnt)) {
-                    current_comm_context = FETCH_CH_PARS;
-                    last_par_cnts[DOSE_RATE_CH] = ch_values[DOSE_RATE_CH].par_cnt;
-                    last_par_cnts[DOSE_CH] = ch_values[DOSE_CH].par_cnt;
-                    last_par_cnts[TEMP_CH] = ch_values[TEMP_CH].par_cnt;
-                } else {
-                    update_gui = true;
-                }
+                /*
+                 * If the par_cnt members of fetched channel values changed
+                 * compared to the last received data, the next requested data
+                 * will be the channel parameters. Communication state is set to
+                 * send the request immediately to prevent unnecessary waiting for
+                 * the "send message" timer to trigger the request. If the par_cnt
+                 * members haven't changed (or have just been updated), the device
+                 * goes to reading only ch_val structures.
+                 *
+                 * Notice that GUI is only updated in the latter case. This is
+                 * because the displayed units are based on the contents of ch_par
+                 * structures. Therefore trying to show the correct unit without
+                 * "knowing" what it is would cause an incorrect unit to be displayed.
+                 */
+            } else if (ch_pars_need_refresh()) {
+                current_comm_context = FETCH_CH_PARS;
+                current_comm_state = SEND_MESSAGE;
+                break;
             } else {
                 current_comm_context = FETCH_CH_VALUES;
                 update_gui = true;
