@@ -12,11 +12,10 @@
 
 #define SUCCESS 0
 #define INVALID_FN_CODE -1
-#define OUT_OF_BOUNDS_READ -2
-#define FN_CODE_RET_ERROR -3
-#define CRC_ERROR -4
-#define INCOMPLETE_DATA -5
-#define INVALID_DEV_ADDR -6
+#define EXCEPTION_FN_CODE -2
+#define CRC_ERROR -3
+#define INCOMPLETE_DATA -4
+#define INVALID_DEV_ADDR -5
 
 typedef enum {
     READ_HOLD_REGS = 0x03,

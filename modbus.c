@@ -46,6 +46,9 @@ int decode_mb_read_input_regs(uint8_t *data, uint8_t data_length, void *output_d
         return INVALID_DEV_ADDR;
     }
     if (data[1] != last_fn_used) {
+        if (data[1] >= 0x80) {
+            return EXCEPTION_FN_CODE;
+        }
         return INVALID_FN_CODE;
     }
     /* Subtracting 5 because device address, function code, data length byte and crc bytes don't count */
