@@ -87,6 +87,11 @@ int process_requested_data() {
         break;
     case FETCH_CH_PARS:
         retval = decode_mb_read_input_regs(rx_buffer, rx_buffer_pos, &ch_pars);
+        if (retval == SUCCESS) {
+            last_par_cnts[DOSE_RATE_CH] = ch_values[DOSE_RATE_CH].par_cnt;
+            last_par_cnts[DOSE_CH] = ch_values[DOSE_CH].par_cnt;
+            last_par_cnts[TEMP_CH] = ch_values[TEMP_CH].par_cnt;
+        }
         break;
     }
     if (retval == SUCCESS) {
