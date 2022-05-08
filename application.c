@@ -69,6 +69,10 @@ void no_response_timeout_handler() {
     ++comm_error_counter;
 }
 
+static bool ch_pars_up_to_date() {
+
+}
+
 int main(void) {
     uint32_t ui32SysClock;
     volatile uint32_t ui32Loop;
@@ -145,9 +149,11 @@ int main(void) {
     TouchScreenCallbackSet(touch_callback);
     Graphics_initContext(&g_context, &Kentec_GD, &Kentec_fxns);
 
+    /* Start the "send message" timer */
     TimerEnable(TIMER1_BASE, TIMER_A);
 
     while (1) {
+        /* Communication error handling */
         if (comm_error_counter >= 5 && current_gui_context != ERROR_GUI) {
             TimerDisable(TIMER1_BASE, TIMER_A);
             TimerDisable(TIMER2_BASE, TIMER_A);
@@ -155,19 +161,17 @@ int main(void) {
             current_comm_state = WAIT_TO_SEND;
             ++clr_screen;
         }
+        /* Updating GUI if necessary */
         if (clr_screen > 0 || update_gui) {
             gui_update();
         }
+        /* Communication control flow */
         switch (current_comm_state) {
         case SEND_MESSAGE:
+            send_request();
             if (current_comm_context == DEVICE_LOOKUP) {
-                request_device_lookup_id();
                 update_gui = true;
-            } else if (current_comm_context == FETCH_CH_VALUES) {
-                request_current_channel_values();
-                TimerEnable(TIMER2_BASE, TIMER_A);
             } else {
-                request_current_channel_pars();
                 TimerEnable(TIMER2_BASE, TIMER_A);
             }
             current_comm_state = WAIT_TO_RECEIVE;
@@ -175,16 +179,13 @@ int main(void) {
         case MESSAGE_RECEIVED:
             TimerDisable(TIMER2_BASE, TIMER_A);
             TimerLoadSet(TIMER2_BASE, TIMER_A, REQ_TIMEOUT_DELAY);
+            if (process_requested_data()) {
+                ++comm_error_counter;
+            }
             if (current_comm_context == DEVICE_LOOKUP) {
                 TimerDisable(TIMER1_BASE, TIMER_A);
-                if (parse_received_device_lookup_id()) {
-                    ++comm_error_counter;
-                }
                 update_found_device_lookup_gui();
             } else if (current_comm_context == FETCH_CH_VALUES) {
-                if (parse_received_channel_values()) {
-                    ++comm_error_counter;
-                }
                 if ((last_par_cnts[DOSE_RATE_CH] != ch_values[DOSE_RATE_CH].par_cnt)
                         || (last_par_cnts[DOSE_CH] != ch_values[DOSE_CH].par_cnt)
                         || (last_par_cnts[TEMP_CH] != ch_values[TEMP_CH].par_cnt)) {
@@ -196,9 +197,6 @@ int main(void) {
                     update_gui = true;
                 }
             } else {
-                if (parse_received_channel_pars()) {
-                    ++comm_error_counter;
-                }
                 current_comm_context = FETCH_CH_VALUES;
                 update_gui = true;
             }

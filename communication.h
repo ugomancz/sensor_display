@@ -83,22 +83,10 @@ void reset_rx_buffer();
 /* Sends the data in TX buffer to the UART */
 void uart_send();
 
-/* Sends a request to the sensor for all three fast channel's ch_val structures */
-void request_current_channel_values();
+/* Sends the appropriate request to the sensor based on the current communication context */
+void send_request();
 
-/* Parses the received channel values data into the ch_values[] array */
-int parse_received_channel_values();
-
-/* Sends a request to the sensor for the dev_id structure */
-void request_device_lookup_id();
-
-/* Parses the received dev_id into the device_id structure */
-int parse_received_device_lookup_id();
-
-/* Sends a request to the sensor for all three fast channel's ch_par structures */
-void request_current_channel_pars();
-
-/* Parses the received channel parameters data into the ch_pars[] array */
-int parse_received_channel_pars();
+/* Parses the data returned from the sensor based on the current communication context */
+int process_requested_data();
 
 #endif /* COMMUNICATION_H_ */

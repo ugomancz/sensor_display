@@ -60,43 +60,35 @@ void uart_send() {
     }
 }
 
-void request_current_channel_values() {
-    gen_mb_read_input_regs(device_address, DOSE_RATE_REG_START_ADDR, CH_VAL_REGS_COUNT * 3, tx_buffer, &tx_buffer_pos);
-    uart_send();
-    reset_tx_buffer();
-}
-
-int parse_received_channel_values() {
-    int retval = decode_mb_read_input_regs(rx_buffer, rx_buffer_pos, &ch_values);
-    if (retval == SUCCESS) {
-        reset_rx_buffer();
+void send_request() {
+    switch (current_comm_context) {
+    case DEVICE_LOOKUP:
+        gen_mb_read_input_regs(device_lookup_address, ID_REG_START_ADDR, ID_REGS_COUNT, tx_buffer, &tx_buffer_pos);
+        break;
+    case FETCH_CH_PARS:
+        gen_mb_read_input_regs(device_address, DOSE_RATE_PAR_REG_START_ADDR, CH_PAR_REGS_COUNT * 3, tx_buffer, &tx_buffer_pos);
+        break;
+    case FETCH_CH_VALUES:
+        gen_mb_read_input_regs(device_address, DOSE_RATE_REG_START_ADDR, CH_VAL_REGS_COUNT * 3, tx_buffer, &tx_buffer_pos);
+        break;
     }
-    return retval;
-}
-
-void request_device_lookup_id() {
-    gen_mb_read_input_regs(device_lookup_address, ID_REG_START_ADDR, ID_REGS_COUNT, tx_buffer, &tx_buffer_pos);
     uart_send();
     reset_tx_buffer();
 }
 
-int parse_received_device_lookup_id() {
-    int retval = decode_mb_read_input_regs(rx_buffer, rx_buffer_pos, &device_lookup_id);
-    if (retval == SUCCESS) {
-        reset_rx_buffer();
+int process_requested_data() {
+    int retval;
+    switch (current_comm_context) {
+    case DEVICE_LOOKUP:
+        retval = decode_mb_read_input_regs(rx_buffer, rx_buffer_pos, &device_lookup_id);
+        break;
+    case FETCH_CH_VALUES:
+        retval = decode_mb_read_input_regs(rx_buffer, rx_buffer_pos, &ch_values);
+        break;
+    case FETCH_CH_PARS:
+        retval = decode_mb_read_input_regs(rx_buffer, rx_buffer_pos, &ch_pars);
+        break;
     }
-    return retval;
-}
-
-void request_current_channel_pars() {
-    gen_mb_read_input_regs(device_address, DOSE_RATE_PAR_REG_START_ADDR, CH_PAR_REGS_COUNT * 3, tx_buffer,
-            &tx_buffer_pos);
-    uart_send();
-    reset_tx_buffer();
-}
-
-int parse_received_channel_pars() {
-    int retval = decode_mb_read_input_regs(rx_buffer, rx_buffer_pos, &ch_pars);
     if (retval == SUCCESS) {
         reset_rx_buffer();
     }
