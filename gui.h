@@ -8,7 +8,7 @@
 #ifndef GUI_H_
 #define GUI_H_
 
-#include "communication.h"
+#include "application.h"
 #include "kentec.h"
 #include "touch.h"
 #include <ti/grlib/grlib.h>
@@ -35,39 +35,29 @@ extern const Graphics_Display_Functions Kentec_fxns;
 extern Graphics_Display Kentec_GD;
 Graphics_Context g_context;
 
-/* Tracks whether the whole screen should be cleared before drawing new GUI elements.
- * Typically happens when GUI context is switched.
- */
-extern volatile uint8_t clr_screen;
+/* "Menu" button in top right corner */
+extern button to_menu_button;
 
-/* Flag set to true if a GUI update is required */
-extern volatile bool update_gui;
+/* "Yes" button within DEVICE_LOOKUP_GUI context */
+extern button lookup_accept_button;
+
+/* "No" button within DEVICE_LOOKUP_GUI context */
+extern button lookup_reject_button;
+
+/* "Measurements" button within MENU_GUI context */
+extern button to_values_button;
+
+/* "Find Device" button within MENU_GUI context */
+extern button to_lookup_button;
 
 /* Tracks the current GUI context (i.e. currently displayed screen) */
 extern volatile gui_context current_gui_context;
 
-/* Holds last displayed values to prevent unnecessary redrawing and screen flickering */
-extern float last_displayed_values[3];
-
-/* Touch screen interrupt handler */
-int32_t touch_callback(uint32_t message, int32_t x, int32_t y);
-
-/* Draws a button onto the display */
-void draw_button(button *b);
-
 /* Top level function which updates the screen contents based on the current GUI context */
-void gui_update();
+void gui_update(volatile uint8_t *clr_screen, channels_data *ch_data, sensor_info *current_sensor,
+        sensor_info *lookup_sensor);
 
 /* Draws information about found device and buttons for user interaction (use/don't use choice) */
 void update_found_device_lookup_gui();
-
-/* Used internally by gui_update() */
-void _init_device_lookup_gui();
-void _update_device_lookup_gui();
-void _init_menu_gui();
-void _update_menu_gui();
-void _init_values_gui();
-void _update_values_gui();
-void _init_error_gui();
 
 #endif /* GUI_H_ */

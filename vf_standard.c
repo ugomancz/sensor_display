@@ -1,8 +1,7 @@
 /*
  * mdg04.c
  *
- *  Created on: 4 Apr 2022
- *      Author: ondra
+ * Author: Ondrej Kostik
  */
 #include <vf_standard.h>
 #include <string.h>
@@ -15,7 +14,6 @@ const char UNITS[50][12] = { { "NaN" }, { "cps" }, { "cpm" }, { "Bq" }, { "Bq/cm
         { "1/(cm2/min)" }, { "ppm" }, { "Gy" }, { "Sv" }, { "kg" }, { "V" }, { "A" }, { "m/s" }, { "s" },
         { "kg/h" }, { "pps" }, { "pps/cm2" }, { "min" }, { "h" }, { "m" }, { "W" } };
 
-/* Saves properly formatted HW_ID to buffer based on id */
 void format_hw_id(char *buffer, uint32_t id) {
     char *p = buffer + strlen(buffer);
     uint32_t type = id >> 28;
@@ -48,7 +46,6 @@ void format_hw_id(char *buffer, uint32_t id) {
     }
 }
 
-/* Saves properly formatted SW_ID to buffer based on id */
 void format_sw_id(char *buffer, uint32_t id) {
     char *p = buffer + strlen(buffer);
     uint32_t type = id >> 28;
