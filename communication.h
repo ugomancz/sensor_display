@@ -24,7 +24,7 @@ typedef enum {
 
 /* Represents the current context of communication */
 typedef enum {
-    DEVICE_LOOKUP, FETCH_CH_VALUES, FETCH_CH_PARS
+    DEVICE_LOOKUP, RESET_DOSE, FETCH_CH_VALUES, FETCH_CH_PARS
 } comm_context;
 
 /* Counter to keep track of request timeouts */

@@ -13,19 +13,27 @@
 #define ID_REG_START_ADDR 0x0000
 
 /* Register addresses of the CH_VAL structures of the fast channels. */
-#define DOSE_RATE_REG_START_ADDR 0x0100
-#define DOSE_REG_START_ADDR 0x010A
-#define TEMP_REG_START_ADDR 0x0114
+#define FAST_DR_REG_START_ADDR 0x0100
+#define FAST_D_REG_START_ADDR 0x010A
+#define FAST_T_REG_START_ADDR 0x0114
 
 /* Register addresses of the CH_PAR structures of the fast channels. */
-#define DOSE_RATE_PAR_REG_START_ADDR 0x0200
-#define DOSE_PAR_REG_START_ADDR 0x0220
-#define TEMP_PAR_REG_START_ADDR 0x0240
+#define FAST_DR_PAR_REG_START_ADDR 0x0200
+#define FAST_D_PAR_REG_START_ADDR 0x0220
+#define FAST_T_PAR_REG_START_ADDR 0x0240
 
 /* Length of DEV_ID, CH_VAL and CH_PAR structures in number of registers. */
 #define ID_REGS_COUNT 0x0024
 #define CH_VAL_REGS_COUNT 0x000A
 #define CH_PAR_REGS_COUNT 0x0020
+
+/* Register address of fast dose channel command. */
+#define FAST_DR_CMD_REG 0X0080
+#define FAST_D_CMD_REG 0X0083
+#define FAST_T_CMD_REG 0X0086
+
+/* Channel commands */
+#define CMD_RESET 0x0001
 
 /* Structure to store the sensor's identification. */
 typedef struct {
