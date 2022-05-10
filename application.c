@@ -98,6 +98,9 @@ void msg_received_timeout_handler() {
 /* Interrupt handler for the "send_message" timer */
 void send_message_timeout_handler() {
     TimerIntClear(TIMER1_BASE, TIMER_TIMA_TIMEOUT);
+    if (current_comm_context != DEVICE_LOOKUP && current_comm_state == WAIT_TO_RECEIVE) {
+        ++comm_error_counter;
+    }
     current_comm_state = SEND_MESSAGE;
     if (current_comm_context == DEVICE_LOOKUP) {
         if (lookup_sensor.addr >= 247) {
@@ -105,12 +108,6 @@ void send_message_timeout_handler() {
         }
         ++lookup_sensor.addr;
     }
-}
-
-/* Interrupt handler for the "request timeout" timer */
-void no_response_timeout_handler() {
-    TimerIntClear(TIMER2_BASE, TIMER_TIMA_TIMEOUT);
-    ++comm_error_counter;
 }
 
 /*
@@ -191,16 +188,6 @@ int main(void) {
     IntEnable(INT_TIMER1A);
     TimerIntEnable(TIMER1_BASE, TIMER_TIMA_TIMEOUT);
 
-    /* Initialise the "request timeout" timer */
-    SysCtlPeripheralEnable(SYSCTL_PERIPH_TIMER2);
-    while (!SysCtlPeripheralReady(SYSCTL_PERIPH_TIMER2)) {
-    }
-    TimerConfigure(TIMER2_BASE, TIMER_CFG_PERIODIC);
-    TimerIntRegister(TIMER2_BASE, TIMER_A, no_response_timeout_handler);
-    TimerLoadSet(TIMER2_BASE, TIMER_A, REQ_TIMEOUT_DELAY);
-    IntEnable(INT_TIMER2A);
-    TimerIntEnable(TIMER2_BASE, TIMER_TIMA_TIMEOUT);
-
     /* Initialise the RX/TX buffers */
     if (init_comm_buffers()) {
         return -1;
@@ -219,7 +206,6 @@ int main(void) {
         /* Communication error handling */
         if (comm_error_counter >= 5 && current_gui_context != ERROR_GUI) {
             TimerDisable(TIMER1_BASE, TIMER_A);
-            TimerDisable(TIMER2_BASE, TIMER_A);
             current_gui_context = ERROR_GUI;
             current_comm_state = WAIT_TO_SEND;
             ++clr_screen;
@@ -243,7 +229,6 @@ int main(void) {
             if (current_comm_context == DEVICE_LOOKUP) {
                 update_gui = true;
             } else {
-                TimerEnable(TIMER2_BASE, TIMER_A);
             }
             current_comm_state = WAIT_TO_RECEIVE;
             break;
@@ -252,8 +237,6 @@ int main(void) {
              * Since there's a message received, the "request timeout" timer
              * can be disabled and it's value reset.
              */
-            TimerDisable(TIMER2_BASE, TIMER_A);
-            TimerLoadSet(TIMER2_BASE, TIMER_A, REQ_TIMEOUT_DELAY);
             if (process_requested_data(&ch_data, &old_par_cnts)) {
                 ++comm_error_counter;
             }

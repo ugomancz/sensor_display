@@ -88,6 +88,9 @@ int process_requested_data(channels_data *ch_data, par_cnts * old_par_cnts) {
     }
     if (retval == SUCCESS) {
         reset_rx_buffer();
+        if (comm_error_counter > 0) {
+            --comm_error_counter;
+        }
     }
     return retval;
 }
