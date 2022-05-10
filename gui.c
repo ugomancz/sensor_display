@@ -56,7 +56,7 @@ button lookup_reject_button = {
 
 /* "Measurements" button within MENU_GUI context */
 button to_values_button = {
-        .coords = { .xMin = 10, .yMin = 180, .xMax = 155, .yMax = 220 },
+        .coords = { .xMin = 10, .yMin = 180, .xMax = 155, .yMax = 230 },
         .button_color = GRAPHICS_COLOR_LIGHT_GRAY,
         .text_color = GRAPHICS_COLOR_BLACK,
         .font = &g_sFontCm20b,
@@ -66,7 +66,7 @@ button to_values_button = {
 
 /* "Find Device" button within MENU_GUI context */
 button to_lookup_button = {
-        .coords = { .xMin = 165, .yMin = 180, .xMax = 310, .yMax = 220 },
+        .coords = { .xMin = 165, .yMin = 180, .xMax = 310, .yMax = 230 },
         .button_color = GRAPHICS_COLOR_LIGHT_GRAY,
         .text_color = GRAPHICS_COLOR_BLACK,
         .font = &g_sFontCm18b,
@@ -90,11 +90,11 @@ static void init_device_lookup_gui(sensor_info *lookup_sensor) {
     Graphics_setFont(&g_context, &g_sFontCm24b);
     Graphics_setForegroundColor(&g_context, GRAPHICS_COLOR_WHITE);
 
-    Graphics_drawString(&g_context, "Device lookup", -1, 4, 9, false);
+    Graphics_drawString(&g_context, "Device lookup", -1, 10, 9, false);
     Graphics_drawLineH(&g_context, 1, 320, 40);
 
     Graphics_setFont(&g_context, &g_sFontCm22b);
-    Graphics_drawString(&g_context, "Scanning address:", -1, 4, 60, false);
+    Graphics_drawString(&g_context, "Scanning address:", -1, 10, 60, false);
 
     sprintf(string_buffer, "0x%02x", lookup_sensor->addr);
     Graphics_drawString(&g_context, (int8_t*) string_buffer, -1, 200, 60, false);
@@ -111,19 +111,19 @@ void update_found_device_lookup_gui(sensor_info *lookup_sensor) {
     Graphics_setFont(&g_context, &g_sFontCm20);
 
     sprintf(string_buffer, "Name: %s", lookup_sensor->id.pr_name);
-    Graphics_drawString(&g_context, (int8_t*) string_buffer, -1, 4, 120, false);
+    Graphics_drawString(&g_context, (int8_t*) string_buffer, -1, 10, 120, false);
 
     memset(string_buffer, 0, 25);
     sprintf(string_buffer, "HW ID: ");
     format_hw_id(string_buffer, lookup_sensor->id.hw_id);
-    Graphics_drawString(&g_context, (int8_t*) string_buffer, -1, 4, 140, false);
+    Graphics_drawString(&g_context, (int8_t*) string_buffer, -1, 10, 140, false);
 
     draw_button(&lookup_accept_button);
     draw_button(&lookup_reject_button);
 }
 
 static void update_device_lookup_gui(sensor_info *lookup_sensor) {
-    const Graphics_Rectangle hide_address = { .xMin = 200, .yMin = 55, .xMax = 280, .yMax = 80 };
+    const Graphics_Rectangle hide_address = { .xMin = 200, .yMin = 55, .xMax = 285, .yMax = 80 };
     const Graphics_Rectangle hide_found = { .xMin = 0, .yMin = 85, .xMax = 319, .yMax = 239 };
     char string_buffer[10] = { 0 };
 
@@ -131,6 +131,7 @@ static void update_device_lookup_gui(sensor_info *lookup_sensor) {
     Graphics_fillRectangle(&g_context, &hide_address);
 
     Graphics_setForegroundColor(&g_context, GRAPHICS_COLOR_WHITE);
+    Graphics_setFont(&g_context, &g_sFontCm22b);
     sprintf(string_buffer, "0x%02x", lookup_sensor->addr);
     Graphics_drawString(&g_context, (int8_t*) string_buffer, -1, 200, 60, false);
     lookup_accept_button.active = false;
@@ -144,36 +145,36 @@ static void init_menu_gui(channels_data *ch_data, sensor_info *current_sensor) {
     Graphics_setForegroundColor(&g_context, GRAPHICS_COLOR_WHITE);
     Graphics_setFont(&g_context, &g_sFontCm24b);
 
-    Graphics_drawString(&g_context, "Menu", -1, 4, 9, false);
+    Graphics_drawString(&g_context, "Menu", -1, 10, 9, false);
     Graphics_drawLineH(&g_context, 1, 320, 40);
 
     Graphics_setFont(&g_context, &g_sFontCm20);
 
     sprintf(string_buffer, "Address: 0x%02x", current_sensor->addr);
-    Graphics_drawString(&g_context, (int8_t*) string_buffer, -1, 4, 50, false);
+    Graphics_drawString(&g_context, (int8_t*) string_buffer, -1, 10, 50, false);
 
     memset(string_buffer, 0, 25);
     sprintf(string_buffer, "SN: %d", current_sensor->id.ser_no);
-    Graphics_drawString(&g_context, (int8_t*) string_buffer, -1, 4, 70, false);
+    Graphics_drawString(&g_context, (int8_t*) string_buffer, -1, 10, 70, false);
 
     memset(string_buffer, 0, 25);
     sprintf(string_buffer, "HW ID: ");
     format_hw_id(string_buffer, current_sensor->id.hw_id);
-    Graphics_drawString(&g_context, (int8_t*) string_buffer, -1, 4, 90, false);
+    Graphics_drawString(&g_context, (int8_t*) string_buffer, -1, 10, 90, false);
 
     memset(string_buffer, 0, 25);
     sprintf(string_buffer, "SW ID: ");
     format_sw_id(string_buffer, current_sensor->id.sw_id);
-    Graphics_drawString(&g_context, (int8_t*) string_buffer, -1, 4, 110, false);
+    Graphics_drawString(&g_context, (int8_t*) string_buffer, -1, 10, 110, false);
 
     memset(string_buffer, 0, 25);
     sprintf(string_buffer, "SW Ver.: %02d.%02d", (current_sensor->id.sw_ver >> 8), (uint8_t) current_sensor->id.sw_ver);
-    Graphics_drawString(&g_context, (int8_t*) string_buffer, -1, 4, 130, false);
+    Graphics_drawString(&g_context, (int8_t*) string_buffer, -1, 10, 130, false);
 
     memset(string_buffer, 0, 25);
     int chars_written = sprintf(string_buffer, "Temp: %0.2f ", ch_data->temp_val.val);
     sprintf(string_buffer + chars_written, UNITS[ch_data->temp_par.unit]);
-    Graphics_drawString(&g_context, (int8_t*) string_buffer, -1, 4, 150, false);
+    Graphics_drawString(&g_context, (int8_t*) string_buffer, -1, 10, 150, false);
     last_values.temp = ch_data->temp_val.val;
 
     draw_button(&to_values_button);
@@ -182,7 +183,7 @@ static void init_menu_gui(channels_data *ch_data, sensor_info *current_sensor) {
 
 static void update_menu_gui(channels_data *ch_data, sensor_info *current_sensor) {
     if (last_values.temp != ch_data->temp_val.val) {
-        const Graphics_Rectangle hide_temp = { .xMin = 60, .yMin = 150, .xMax = 170, .yMax = 175 };
+        const Graphics_Rectangle hide_temp = { .xMin = 65, .yMin = 150, .xMax = 175, .yMax = 175 };
         char string_buffer[20] = { 0 };
 
         Graphics_setForegroundColor(&g_context, GRAPHICS_COLOR_BLACK);
@@ -193,7 +194,7 @@ static void update_menu_gui(channels_data *ch_data, sensor_info *current_sensor)
 
         int chars_written = sprintf(string_buffer, "%0.2f ", ch_data->temp_val.val);
         sprintf(string_buffer + chars_written, UNITS[ch_data->temp_par.unit]);
-        Graphics_drawString(&g_context, (int8_t*) string_buffer, -1, 70, 150, false);
+        Graphics_drawString(&g_context, (int8_t*) string_buffer, -1, 75, 150, false);
         last_values.temp = ch_data->temp_val.val;
     }
 }
@@ -203,24 +204,24 @@ static void init_values_gui(channels_data *ch_data) {
     Graphics_setForegroundColor(&g_context, GRAPHICS_COLOR_WHITE);
     Graphics_setFont(&g_context, &g_sFontCm24b);
 
-    Graphics_drawString(&g_context, "Measurements", -1, 4, 9, false);
+    Graphics_drawString(&g_context, "Measurements", -1, 10, 9, false);
     Graphics_drawLineH(&g_context, 1, 320, 40);
-    Graphics_drawString(&g_context, "Dose rate", -1, 4, 50, false);
+    Graphics_drawString(&g_context, "Dose rate", -1, 10, 50, false);
     Graphics_drawLineH(&g_context, 1, 320, 140);
-    Graphics_drawString(&g_context, "Dose", -1, 4, 150, false);
+    Graphics_drawString(&g_context, "Dose", -1, 10, 150, false);
 
     Graphics_setFont(&g_context, &g_sFontCm48b);
 
     sprintf(string_buffer, "%0.2e", ch_data->dose_rate_val.val);
-    Graphics_drawString(&g_context, (int8_t*) string_buffer, -1, 4, 80, false);
+    Graphics_drawString(&g_context, (int8_t*) string_buffer, -1, 10, 80, false);
 
     memset(string_buffer, 0, 20);
     sprintf(string_buffer, "%0.2e", ch_data->dose_val.val);
-    Graphics_drawString(&g_context, (int8_t*) string_buffer, -1, 4, 180, false);
+    Graphics_drawString(&g_context, (int8_t*) string_buffer, -1, 10, 180, false);
 
     Graphics_setFont(&g_context, &g_sFontCm32b);
-    Graphics_drawString(&g_context, (int8_t*) UNITS[ch_data->dose_rate_par.unit], -1, 205, 90, false);
-    Graphics_drawString(&g_context, (int8_t*) UNITS[ch_data->dose_par.unit], -1, 205, 190, false);
+    Graphics_drawString(&g_context, (int8_t*) UNITS[ch_data->dose_rate_par.unit], -1, 210, 90, false);
+    Graphics_drawString(&g_context, (int8_t*) UNITS[ch_data->dose_par.unit], -1, 210, 190, false);
 
     draw_button(&to_menu_button);
     last_values.dose_rate = ch_data->dose_rate_val.val;
@@ -230,7 +231,7 @@ static void init_values_gui(channels_data *ch_data) {
 static void update_values_gui(channels_data *ch_data) {
     char string_buffer[20] = { 0 };
     if (last_values.dose_rate != ch_data->dose_rate_val.val) {
-        const Graphics_Rectangle hide_dose_rate = { .xMin = 4, .yMin = 75, .xMax = 204, .yMax = 130 };
+        const Graphics_Rectangle hide_dose_rate = { .xMin = 10, .yMin = 75, .xMax = 210, .yMax = 130 };
 
         Graphics_setForegroundColor(&g_context, GRAPHICS_COLOR_BLACK);
         Graphics_fillRectangle(&g_context, &hide_dose_rate);
@@ -239,12 +240,12 @@ static void update_values_gui(channels_data *ch_data) {
         Graphics_setFont(&g_context, &g_sFontCm48b);
 
         sprintf(string_buffer, "%0.2e", ch_data->dose_rate_val.val);
-        Graphics_drawString(&g_context, (int8_t*) string_buffer, -1, 4, 80, false);
+        Graphics_drawString(&g_context, (int8_t*) string_buffer, -1, 10, 80, false);
 
         last_values.dose_rate = ch_data->dose_rate_val.val;
     }
     if (last_values.dose = ch_data->dose_val.val) {
-        const Graphics_Rectangle hide_dose = { .xMin = 4, .yMin = 175, .xMax = 204, .yMax = 230 };
+        const Graphics_Rectangle hide_dose = { .xMin = 10, .yMin = 175, .xMax = 210, .yMax = 230 };
 
         Graphics_setForegroundColor(&g_context, GRAPHICS_COLOR_BLACK);
         Graphics_fillRectangle(&g_context, &hide_dose);
@@ -254,7 +255,7 @@ static void update_values_gui(channels_data *ch_data) {
 
         memset(string_buffer, 0, 20);
         sprintf(string_buffer, "%0.2e", ch_data->dose_val.val);
-        Graphics_drawString(&g_context, (int8_t*) string_buffer, -1, 4, 180, false);
+        Graphics_drawString(&g_context, (int8_t*) string_buffer, -1, 10, 180, false);
 
         last_values.dose = ch_data->dose_val.val;
     }

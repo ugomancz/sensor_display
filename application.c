@@ -204,7 +204,7 @@ int main(void) {
 
     while (1) {
         /* Communication error handling */
-        if (comm_error_counter >= 5 && current_gui_context != ERROR_GUI) {
+        if (comm_error_counter >= 10 && current_gui_context != ERROR_GUI) {
             TimerDisable(TIMER1_BASE, TIMER_A);
             current_gui_context = ERROR_GUI;
             current_comm_state = WAIT_TO_SEND;
