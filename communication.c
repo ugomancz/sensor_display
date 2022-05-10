@@ -77,7 +77,7 @@ void send_request() {
     reset_tx_buffer();
 }
 
-int process_requested_data(channels_data *ch_data, par_cnts *old_par_cnts) {
+int process_response(channels_data *ch_data, par_cnts *old_par_cnts) {
     int retval;
     switch (current_comm_context) {
     case DEVICE_LOOKUP:

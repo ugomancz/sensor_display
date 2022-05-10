@@ -52,6 +52,6 @@ int init_comm_buffers();
 void send_request();
 
 /* Parses the data returned from the sensor based on the current communication context */
-int process_requested_data(channels_data *ch_data, par_cnts *old_par_cnts);
+int process_response(channels_data *ch_data, par_cnts *old_par_cnts);
 
 #endif /* COMMUNICATION_H_ */

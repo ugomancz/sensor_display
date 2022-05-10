@@ -64,7 +64,7 @@ int32_t touch_callback(uint32_t message, int32_t x, int32_t y) {
             current_gui_context = MENU_GUI;
             TimerLoadSet(TIMER1_BASE, TIMER_A, FETCH_CH_VALUES_MSG_DELAY);
             TimerEnable(TIMER1_BASE, TIMER_A);
-            current_comm_context = FETCH_CH_VALUES;
+            current_comm_context = RESET_DOSE;
             memcpy(&current_sensor, &lookup_sensor, sizeof(current_sensor));
             memset(&old_par_cnts, 0, sizeof(old_par_cnts));
             current_comm_state = SEND_MESSAGE;
@@ -229,8 +229,10 @@ int main(void) {
             current_comm_state = WAIT_TO_RECEIVE;
             break;
         case MESSAGE_RECEIVED:
-            if (process_requested_data(&ch_data, &old_par_cnts)) {
+            if (process_response(&ch_data, &old_par_cnts)) {
                 ++comm_error_counter;
+                current_comm_state = WAIT_TO_SEND;
+                break;
             }
             /*
              * In the device lookup context, the "send message" timer gets
