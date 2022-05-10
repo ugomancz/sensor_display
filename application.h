@@ -6,6 +6,7 @@
 #ifndef APPLICATION_H_
 #define APPLICATION_H_
 
+#include "vf_standard.h"
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -26,5 +27,42 @@
 
 /* Timeout value for the "request timeout" timer in CPU cycles. */
 #define REQ_TIMEOUT_DELAY FREQ
+
+/* Structure encapsulating all the values and parameters of a set of channels */
+typedef struct {
+    ch_val dose_rate_val;
+    ch_val dose_val;
+    ch_val temp_val;
+    ch_par dose_rate_par;
+    ch_par dose_par;
+    ch_par temp_par;
+} channels_data;
+
+/*
+ * Structure encapsulating par_cnt values of all three channels.
+ * Used to keep track of changes.
+ */
+typedef struct {
+    uint16_t dose_rate;
+    uint16_t dose;
+    uint16_t temp;
+} par_cnts;
+
+/* Structure encapsulating basic info about a sensor */
+typedef struct {
+    uint8_t addr;
+    dev_id id;
+} sensor_info;
+
+extern sensor_info current_sensor;
+extern sensor_info lookup_sensor;
+
+/* Tracks whether the whole screen should be cleared before drawing new GUI elements.
+ * Typically happens when GUI context is switched.
+ */
+extern volatile uint8_t clr_screen;
+
+/* Flag set to true if a GUI update is required */
+extern volatile bool update_gui;
 
 #endif /* APPLICATION_H_ */

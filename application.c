@@ -7,6 +7,14 @@
 #include "communication.h"
 #include "gui.h"
 #include <ti/devices/msp432e4/driverlib/driverlib.h>
+#include <string.h>
+
+volatile uint8_t clr_screen = 1;
+volatile bool update_gui = true;
+static channels_data ch_data = { 0 };
+sensor_info current_sensor = { 0 };
+sensor_info lookup_sensor = { 0 };
+par_cnts old_par_cnts = { 0 };
 
 /* UART RX/TX interrupt handler */
 void uart_int_handler(void) {
@@ -38,6 +46,49 @@ void uart_int_handler(void) {
     }
 }
 
+/* Helper function to determine if click occurred inside of a button's coordinates */
+static bool button_was_pressed(button *b, int32_t x, int32_t y) {
+    return (b->coords.xMin <= x && b->coords.xMax >= x && b->coords.yMin <= y && b->coords.yMax >= y);
+}
+
+/* Touch screen interrupt handler */
+int32_t touch_callback(uint32_t message, int32_t x, int32_t y) {
+    if (message == MSG_PTR_UP) {
+        if (to_menu_button.active && button_was_pressed(&to_menu_button, x, y)) {
+            current_gui_context = MENU_GUI;
+            TimerLoadSet(TIMER1_BASE, TIMER_A, FETCH_CH_VALUES_MSG_DELAY);
+            TimerEnable(TIMER1_BASE, TIMER_A);
+            current_comm_context = FETCH_CH_VALUES;
+            ++clr_screen;
+        } else if (lookup_accept_button.active && button_was_pressed(&lookup_accept_button, x, y)) {
+            current_gui_context = MENU_GUI;
+            TimerLoadSet(TIMER1_BASE, TIMER_A, FETCH_CH_VALUES_MSG_DELAY);
+            TimerEnable(TIMER1_BASE, TIMER_A);
+            current_comm_context = FETCH_CH_VALUES;
+            memcpy(&current_sensor, &lookup_sensor, sizeof(current_sensor));
+            memset(&old_par_cnts, 0, sizeof(old_par_cnts));
+            current_comm_state = SEND_MESSAGE;
+            ++clr_screen;
+        } else if (lookup_reject_button.active && button_was_pressed(&lookup_reject_button, x, y)) {
+            lookup_accept_button.active = false;
+            lookup_reject_button.active = false;
+            TimerEnable(TIMER1_BASE, TIMER_A);
+            update_gui = true;
+        } else if (to_values_button.active && button_was_pressed(&to_values_button, x, y)) {
+            current_gui_context = VALUES_GUI;
+            ++clr_screen;
+        } else if (to_lookup_button.active && button_was_pressed(&to_lookup_button, x, y)) {
+            current_gui_context = DEVICE_LOOKUP_GUI;
+            current_comm_context = DEVICE_LOOKUP;
+            TimerLoadSet(TIMER1_BASE, TIMER_A, DEVICE_LOOKUP_MSG_DELAY);
+            lookup_sensor.addr = 0x01;
+            current_comm_state = SEND_MESSAGE;
+            ++clr_screen;
+        }
+    }
+    return 0;
+}
+
 /* Interrupt handler for the T15 "message received" timer */
 void msg_received_timeout_handler() {
     TimerIntClear(TIMER0_BASE, TIMER_TIMA_TIMEOUT);
@@ -49,10 +100,10 @@ void send_message_timeout_handler() {
     TimerIntClear(TIMER1_BASE, TIMER_TIMA_TIMEOUT);
     current_comm_state = SEND_MESSAGE;
     if (current_comm_context == DEVICE_LOOKUP) {
-        if (device_lookup_address >= 247) {
-            device_lookup_address = 0;
+        if (lookup_sensor.addr >= 247) {
+            lookup_sensor.addr = 0;
         }
-        ++device_lookup_address;
+        ++lookup_sensor.addr;
     }
 }
 
@@ -66,10 +117,10 @@ void no_response_timeout_handler() {
  * Returns true if the par_cnt member of any of the currently fetched ch_val
  * structures is different when compared to the par_cnt of the last fetched data.
  */
-static bool ch_pars_need_refresh() {
-    if ((last_par_cnts[DOSE_RATE_CH] != ch_values[DOSE_RATE_CH].par_cnt)
-            || (last_par_cnts[DOSE_CH] != ch_values[DOSE_CH].par_cnt)
-            || (last_par_cnts[TEMP_CH] != ch_values[TEMP_CH].par_cnt)) {
+static bool ch_pars_need_refresh(channels_data *ch_data) {
+    if ((old_par_cnts.dose_rate != ch_data->dose_rate_val.par_cnt)
+            || (old_par_cnts.dose != ch_data->dose_val.par_cnt)
+            || (old_par_cnts.temp != ch_data->temp_val.par_cnt)) {
         return true;
     }
     return false;
@@ -175,7 +226,8 @@ int main(void) {
         }
         /* Updating GUI if necessary */
         if (clr_screen > 0 || update_gui) {
-            gui_update();
+            gui_update(&clr_screen, &ch_data, &current_sensor, &lookup_sensor);
+            update_gui = false;
         }
         /* Communication control flow */
         switch (current_comm_state) {
@@ -202,7 +254,7 @@ int main(void) {
              */
             TimerDisable(TIMER2_BASE, TIMER_A);
             TimerLoadSet(TIMER2_BASE, TIMER_A, REQ_TIMEOUT_DELAY);
-            if (process_requested_data()) {
+            if (process_requested_data(&ch_data, &old_par_cnts)) {
                 ++comm_error_counter;
             }
             /*
@@ -212,7 +264,7 @@ int main(void) {
              */
             if (current_comm_context == DEVICE_LOOKUP) {
                 TimerDisable(TIMER1_BASE, TIMER_A);
-                update_found_device_lookup_gui();
+                update_found_device_lookup_gui(&lookup_sensor);
                 /*
                  * If the par_cnt members of fetched channel values changed
                  * compared to the last received data, the next requested data
@@ -227,7 +279,7 @@ int main(void) {
                  * structures. Therefore trying to show the correct unit without
                  * "knowing" what it is would cause an incorrect unit to be displayed.
                  */
-            } else if (ch_pars_need_refresh()) {
+            } else if (ch_pars_need_refresh(&ch_data)) {
                 current_comm_context = FETCH_CH_PARS;
                 current_comm_state = SEND_MESSAGE;
                 break;
