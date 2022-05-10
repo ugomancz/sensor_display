@@ -53,22 +53,11 @@ extern button to_lookup_button;
 /* Tracks the current GUI context (i.e. currently displayed screen) */
 extern volatile gui_context current_gui_context;
 
-/* Draws a button onto the display */
-void draw_button(button *b);
-
 /* Top level function which updates the screen contents based on the current GUI context */
-void gui_update(volatile uint8_t *clr_screen, channels_data *ch_data, sensor_info *current_sensor, sensor_info *lookup_sensor);
+void gui_update(volatile uint8_t *clr_screen, channels_data *ch_data, sensor_info *current_sensor,
+        sensor_info *lookup_sensor);
 
 /* Draws information about found device and buttons for user interaction (use/don't use choice) */
 void update_found_device_lookup_gui();
-
-/* Used internally by gui_update() */
-void _init_device_lookup_gui();
-void _update_device_lookup_gui();
-void _init_menu_gui();
-void _update_menu_gui();
-void _init_values_gui();
-void _update_values_gui();
-void _init_error_gui();
 
 #endif /* GUI_H_ */

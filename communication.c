@@ -34,17 +34,20 @@ int init_comm_buffers() {
     return 0;
 }
 
-void reset_tx_buffer() {
+/* Resets TX buffer */
+static void reset_tx_buffer() {
     memset(tx_buffer, 0, tx_buffer_pos);
     tx_buffer_pos = 0;
 }
 
-void reset_rx_buffer() {
+/* Resets RX buffer */
+static void reset_rx_buffer() {
     memset(rx_buffer, 0, rx_buffer_pos);
     rx_buffer_pos = 0;
 }
 
-void uart_send() {
+/* Sends the data in TX buffer to the UART */
+static void uart_send() {
     set_comm_direction(TRANSMIT);
     for (int i = 0; i < tx_buffer_pos; ++i) {
         UARTCharPut(UART6_BASE, tx_buffer[i]);
@@ -57,17 +60,19 @@ void send_request() {
         gen_mb_read_input_regs(lookup_sensor.addr, ID_REG_START_ADDR, ID_REGS_COUNT, tx_buffer, &tx_buffer_pos);
         break;
     case FETCH_CH_PARS:
-        gen_mb_read_input_regs(current_sensor.addr, DOSE_RATE_PAR_REG_START_ADDR, CH_PAR_REGS_COUNT * 3, tx_buffer, &tx_buffer_pos);
+        gen_mb_read_input_regs(current_sensor.addr, DOSE_RATE_PAR_REG_START_ADDR, CH_PAR_REGS_COUNT * 3, tx_buffer,
+                &tx_buffer_pos);
         break;
     case FETCH_CH_VALUES:
-        gen_mb_read_input_regs(current_sensor.addr, DOSE_RATE_REG_START_ADDR, CH_VAL_REGS_COUNT * 3, tx_buffer, &tx_buffer_pos);
+        gen_mb_read_input_regs(current_sensor.addr, DOSE_RATE_REG_START_ADDR, CH_VAL_REGS_COUNT * 3, tx_buffer,
+                &tx_buffer_pos);
         break;
     }
     uart_send();
     reset_tx_buffer();
 }
 
-int process_requested_data(channels_data *ch_data, par_cnts * old_par_cnts) {
+int process_requested_data(channels_data *ch_data, par_cnts *old_par_cnts) {
     int retval;
     switch (current_comm_context) {
     case DEVICE_LOOKUP:

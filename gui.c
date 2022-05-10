@@ -75,7 +75,7 @@ button to_lookup_button = {
 };
 
 /* Draws a button onto the display */
-void draw_button(button *b) {
+static void draw_button(button *b) {
     b->active = true;
     Graphics_setForegroundColor(&g_context, b->button_color);
     Graphics_fillRectangle(&g_context, &(b->coords));
@@ -85,48 +85,7 @@ void draw_button(button *b) {
             (b->coords.yMax + b->coords.yMin) / 2, false);
 }
 
-/* Top level function which updates the screen contents based on the current GUI context */
-void gui_update(volatile uint8_t *clr_screen, channels_data *ch_data, sensor_info *current_sensor, sensor_info *lookup_sensor) {
-    if (*clr_screen > 0) {
-        Graphics_clearDisplay(&g_context);
-        to_values_button.active = false;
-        to_lookup_button.active = false;
-        lookup_accept_button.active = false;
-        lookup_reject_button.active = false;
-        to_menu_button.active = false;
-    }
-    switch (current_gui_context) {
-    case DEVICE_LOOKUP_GUI:
-        if (*clr_screen > 0) {
-            _init_device_lookup_gui(lookup_sensor);
-        } else {
-            _update_device_lookup_gui(lookup_sensor);
-        }
-        break;
-    case MENU_GUI:
-        if (*clr_screen > 0) {
-            _init_menu_gui(ch_data, current_sensor);
-        } else {
-            _update_menu_gui(ch_data, current_sensor);
-        }
-        break;
-    case VALUES_GUI:
-        if (*clr_screen > 0) {
-            _init_values_gui(ch_data);
-        } else {
-            _update_values_gui(ch_data);
-        }
-        break;
-    case ERROR_GUI:
-        _init_error_gui();
-        break;
-    }
-    if (*clr_screen > 0) {
-        --(*clr_screen);
-    }
-}
-
-void _init_device_lookup_gui(sensor_info *lookup_sensor) {
+static void init_device_lookup_gui(sensor_info *lookup_sensor) {
     char string_buffer[10] = { 0 };
     Graphics_setFont(&g_context, &g_sFontCm24b);
     Graphics_setForegroundColor(&g_context, GRAPHICS_COLOR_WHITE);
@@ -163,7 +122,7 @@ void update_found_device_lookup_gui(sensor_info *lookup_sensor) {
     draw_button(&lookup_reject_button);
 }
 
-void _update_device_lookup_gui(sensor_info *lookup_sensor) {
+static void update_device_lookup_gui(sensor_info *lookup_sensor) {
     const Graphics_Rectangle hide_address = { .xMin = 200, .yMin = 55, .xMax = 280, .yMax = 80 };
     const Graphics_Rectangle hide_found = { .xMin = 0, .yMin = 85, .xMax = 319, .yMax = 239 };
     char string_buffer[10] = { 0 };
@@ -180,7 +139,7 @@ void _update_device_lookup_gui(sensor_info *lookup_sensor) {
     Graphics_fillRectangle(&g_context, &hide_found);
 }
 
-void _init_menu_gui(channels_data *ch_data, sensor_info *current_sensor) {
+static void init_menu_gui(channels_data *ch_data, sensor_info *current_sensor) {
     char string_buffer[25] = { 0 };
     Graphics_setForegroundColor(&g_context, GRAPHICS_COLOR_WHITE);
     Graphics_setFont(&g_context, &g_sFontCm24b);
@@ -221,7 +180,7 @@ void _init_menu_gui(channels_data *ch_data, sensor_info *current_sensor) {
     draw_button(&to_lookup_button);
 }
 
-void _update_menu_gui(channels_data *ch_data, sensor_info *current_sensor) {
+static void update_menu_gui(channels_data *ch_data, sensor_info *current_sensor) {
     if (last_values.temp != ch_data->temp_val.val) {
         const Graphics_Rectangle hide_temp = { .xMin = 60, .yMin = 150, .xMax = 170, .yMax = 175 };
         char string_buffer[20] = { 0 };
@@ -239,7 +198,7 @@ void _update_menu_gui(channels_data *ch_data, sensor_info *current_sensor) {
     }
 }
 
-void _init_values_gui(channels_data *ch_data) {
+static void init_values_gui(channels_data *ch_data) {
     char string_buffer[20] = { 0 };
     Graphics_setForegroundColor(&g_context, GRAPHICS_COLOR_WHITE);
     Graphics_setFont(&g_context, &g_sFontCm24b);
@@ -268,7 +227,7 @@ void _init_values_gui(channels_data *ch_data) {
     last_values.dose = ch_data->dose_val.val;
 }
 
-void _update_values_gui(channels_data *ch_data) {
+static void update_values_gui(channels_data *ch_data) {
     char string_buffer[20] = { 0 };
     if (last_values.dose_rate != ch_data->dose_rate_val.val) {
         const Graphics_Rectangle hide_dose_rate = { .xMin = 4, .yMin = 75, .xMax = 204, .yMax = 130 };
@@ -301,7 +260,7 @@ void _update_values_gui(channels_data *ch_data) {
     }
 }
 
-void _init_error_gui() {
+static void init_error_gui() {
     Graphics_setForegroundColor(&g_context, GRAPHICS_COLOR_RED);
     Graphics_setFont(&g_context, &g_sFontCm48b);
 
@@ -312,4 +271,46 @@ void _init_error_gui() {
 
     Graphics_drawStringCentered(&g_context, (int8_t*) "Connection to the sensor lost.", -1, 160, 125, false);
     Graphics_drawStringCentered(&g_context, (int8_t*) "Reboot required.", -1, 160, 145, false);
+}
+
+/* Top level function which updates the screen contents based on the current GUI context */
+void gui_update(volatile uint8_t *clr_screen, channels_data *ch_data, sensor_info *current_sensor,
+        sensor_info *lookup_sensor) {
+    if (*clr_screen > 0) {
+        Graphics_clearDisplay(&g_context);
+        to_values_button.active = false;
+        to_lookup_button.active = false;
+        lookup_accept_button.active = false;
+        lookup_reject_button.active = false;
+        to_menu_button.active = false;
+    }
+    switch (current_gui_context) {
+    case DEVICE_LOOKUP_GUI:
+        if (*clr_screen > 0) {
+            init_device_lookup_gui(lookup_sensor);
+        } else {
+            update_device_lookup_gui(lookup_sensor);
+        }
+        break;
+    case MENU_GUI:
+        if (*clr_screen > 0) {
+            init_menu_gui(ch_data, current_sensor);
+        } else {
+            update_menu_gui(ch_data, current_sensor);
+        }
+        break;
+    case VALUES_GUI:
+        if (*clr_screen > 0) {
+            init_values_gui(ch_data);
+        } else {
+            update_values_gui(ch_data);
+        }
+        break;
+    case ERROR_GUI:
+        init_error_gui();
+        break;
+    }
+    if (*clr_screen > 0) {
+        --(*clr_screen);
+    }
 }

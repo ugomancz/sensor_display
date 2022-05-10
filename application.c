@@ -221,22 +221,14 @@ int main(void) {
             send_request();
             /*
              * The GUI is updated only in the device lookup context to draw
-             * the currently probed address onto the display. Similarly, the
-             * "request timeout" timer is only started in the other contexts
-             * as during the device lookup request timeouts are expected and
-             * handled accordingly using the "send message" timer.
+             * the currently probed address onto the display.
              */
             if (current_comm_context == DEVICE_LOOKUP) {
                 update_gui = true;
-            } else {
             }
             current_comm_state = WAIT_TO_RECEIVE;
             break;
         case MESSAGE_RECEIVED:
-            /*
-             * Since there's a message received, the "request timeout" timer
-             * can be disabled and it's value reset.
-             */
             if (process_requested_data(&ch_data, &old_par_cnts)) {
                 ++comm_error_counter;
             }

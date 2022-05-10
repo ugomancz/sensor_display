@@ -48,19 +48,10 @@ void set_comm_direction(direction dir);
 /* Allocates the RX and TX buffers */
 int init_comm_buffers();
 
-/* Resets TX buffer */
-void reset_tx_buffer();
-
-/* Resets RX buffer */
-void reset_rx_buffer();
-
-/* Sends the data in TX buffer to the UART */
-void uart_send();
-
 /* Sends the appropriate request to the sensor based on the current communication context */
 void send_request();
 
 /* Parses the data returned from the sensor based on the current communication context */
-int process_requested_data(channels_data *ch_data, par_cnts * old_par_cnts);
+int process_requested_data(channels_data *ch_data, par_cnts *old_par_cnts);
 
 #endif /* COMMUNICATION_H_ */

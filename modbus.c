@@ -12,7 +12,7 @@
 fn_code last_fn_used;
 int16_t last_dev_addr = -1;
 
-void _switch_register_endianity(uint8_t *data, const unsigned int bytes) {
+static void switch_register_endianity(uint8_t *data, const unsigned int bytes) {
     uint8_t temp;
     for (int i = 0; i < bytes; i += 2) {
         temp = data[i + 1];
@@ -62,7 +62,7 @@ int decode_mb_read_input_regs(uint8_t *data, uint8_t data_length, void *output_d
     }
     /* Adding 3 to strip initial address, function code and data length bytes */
     memcpy(output_dest, data + 3, data[2]);
-    _switch_register_endianity(output_dest, data[2]);
+    switch_register_endianity(output_dest, data[2]);
 
     return SUCCESS;
 }
