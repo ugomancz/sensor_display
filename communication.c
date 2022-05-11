@@ -12,8 +12,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-volatile comm_context current_comm_context = DEVICE_LOOKUP;
-volatile comm_state current_comm_state = SEND_MESSAGE;
+volatile _comm_context comm_context = DEVICE_LOOKUP;
+volatile _comm_state comm_state = SEND_MESSAGE;
 
 volatile uint8_t comm_error_counter = 0;
 
@@ -57,7 +57,7 @@ static void uart_send() {
 }
 
 void send_request() {
-    switch (current_comm_context) {
+    switch (comm_context) {
     case DEVICE_LOOKUP:
         mb_gen_read_input_regs(lookup_sensor.addr, ID_REG_START_ADDR, ID_REGS_COUNT, tx_buffer, &tx_buffer_pos);
         break;
@@ -79,7 +79,7 @@ void send_request() {
 
 int process_response(channels_data *ch_data, par_cnts *old_par_cnts) {
     int retval;
-    switch (current_comm_context) {
+    switch (comm_context) {
     case DEVICE_LOOKUP:
         retval = mb_decode_read_input_regs(rx_buffer, rx_buffer_pos, &lookup_sensor.id);
         break;

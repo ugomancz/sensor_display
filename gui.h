@@ -28,7 +28,7 @@ typedef struct {
 /* Represents the current GUI context (i.e. currently displayed screen) */
 typedef enum {
     DEVICE_LOOKUP_GUI, MENU_GUI, VALUES_GUI, ERROR_GUI
-} gui_context;
+} _gui_context;
 
 /* Structures used by the display driver */
 extern const Graphics_Display_Functions Kentec_fxns;
@@ -51,7 +51,15 @@ extern button to_values_button;
 extern button to_lookup_button;
 
 /* Tracks the current GUI context (i.e. currently displayed screen) */
-extern volatile gui_context current_gui_context;
+extern volatile _gui_context gui_context;
+
+/* Tracks whether the whole screen should be cleared before drawing new GUI elements.
+ * Typically happens when GUI context is switched.
+ */
+extern volatile uint8_t clr_screen;
+
+/* Flag set to true if a GUI update is required */
+extern volatile bool update_gui;
 
 /* Top level function which updates the screen contents based on the current GUI context */
 void gui_update(volatile uint8_t *clr_screen, channels_data *ch_data, sensor_info *current_sensor,

@@ -20,21 +20,21 @@ typedef enum {
 /* Represents the current state of communication */
 typedef enum {
     WAIT_TO_SEND, WAIT_TO_RECEIVE, SEND_MESSAGE, MESSAGE_RECEIVED
-} comm_state;
+} _comm_state;
 
 /* Represents the current context of communication */
 typedef enum {
     DEVICE_LOOKUP, RESET_DOSE, FETCH_CH_VALUES, FETCH_CH_PARS
-} comm_context;
+} _comm_context;
 
 /* Counter to keep track of request timeouts */
 extern volatile uint8_t comm_error_counter;
 
 /* Tracks the current context of communication */
-extern volatile comm_context current_comm_context;
+extern volatile _comm_context comm_context;
 
 /* Tracks the current state of communication */
-extern volatile comm_state current_comm_state;
+extern volatile _comm_state comm_state;
 
 /* RX and TX buffers serve as a bridge between the ModBus library and the UART communication. */
 extern uint8_t *tx_buffer;

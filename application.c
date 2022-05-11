@@ -1,6 +1,10 @@
 /*
  * application.c
  *
+ * This file serves as the entry point to the program.
+ * It contains the main() function, interrupt handlers and a few
+ * variables used throughout the project.
+ *
  * Author: Ondrej Kostik
  */
 #include "application.h"
@@ -9,8 +13,6 @@
 #include <ti/devices/msp432e4/driverlib/driverlib.h>
 #include <string.h>
 
-volatile uint8_t clr_screen = 1;
-volatile bool update_gui = true;
 static channels_data ch_data = { 0 };
 sensor_info current_sensor = { 0 };
 sensor_info lookup_sensor = { 0 };
@@ -34,13 +36,13 @@ void uart_int_handler(void) {
     }
 
     /* Should only occur in case of a fault in a transmission */
-    if (current_comm_state == MESSAGE_RECEIVED || current_comm_state == WAIT_TO_SEND) {
+    if (comm_state == MESSAGE_RECEIVED || comm_state == WAIT_TO_SEND) {
         return;
     }
 
     rx_buffer[rx_buffer_pos++] = UARTCharGet(UART6_BASE);
     /* Resets the T15 "message received" timer */
-    if (current_comm_state != MESSAGE_RECEIVED) {
+    if (comm_state != MESSAGE_RECEIVED) {
         TimerLoadSet(TIMER0_BASE, TIMER_A, T_15_CYCLES);
         TimerEnable(TIMER0_BASE, TIMER_A);
     }
@@ -55,19 +57,19 @@ static bool button_was_pressed(button *b, int32_t x, int32_t y) {
 int32_t touch_callback(uint32_t message, int32_t x, int32_t y) {
     if (message == MSG_PTR_UP) {
         if (to_menu_button.active && button_was_pressed(&to_menu_button, x, y)) {
-            current_gui_context = MENU_GUI;
+            gui_context = MENU_GUI;
             TimerLoadSet(TIMER1_BASE, TIMER_A, FETCH_CH_VALUES_MSG_DELAY);
             TimerEnable(TIMER1_BASE, TIMER_A);
-            current_comm_context = FETCH_CH_VALUES;
+            comm_context = FETCH_CH_VALUES;
             ++clr_screen;
         } else if (lookup_accept_button.active && button_was_pressed(&lookup_accept_button, x, y)) {
-            current_gui_context = MENU_GUI;
+            gui_context = MENU_GUI;
             TimerLoadSet(TIMER1_BASE, TIMER_A, FETCH_CH_VALUES_MSG_DELAY);
             TimerEnable(TIMER1_BASE, TIMER_A);
-            current_comm_context = RESET_DOSE;
+            comm_context = RESET_DOSE;
             memcpy(&current_sensor, &lookup_sensor, sizeof(current_sensor));
             memset(&old_par_cnts, 0, sizeof(old_par_cnts));
-            current_comm_state = SEND_MESSAGE;
+            comm_state = SEND_MESSAGE;
             ++clr_screen;
         } else if (lookup_reject_button.active && button_was_pressed(&lookup_reject_button, x, y)) {
             lookup_accept_button.active = false;
@@ -75,14 +77,14 @@ int32_t touch_callback(uint32_t message, int32_t x, int32_t y) {
             TimerEnable(TIMER1_BASE, TIMER_A);
             update_gui = true;
         } else if (to_values_button.active && button_was_pressed(&to_values_button, x, y)) {
-            current_gui_context = VALUES_GUI;
+            gui_context = VALUES_GUI;
             ++clr_screen;
         } else if (to_lookup_button.active && button_was_pressed(&to_lookup_button, x, y)) {
-            current_gui_context = DEVICE_LOOKUP_GUI;
-            current_comm_context = DEVICE_LOOKUP;
+            gui_context = DEVICE_LOOKUP_GUI;
+            comm_context = DEVICE_LOOKUP;
             TimerLoadSet(TIMER1_BASE, TIMER_A, DEVICE_LOOKUP_MSG_DELAY);
             lookup_sensor.addr = 0x01;
-            current_comm_state = SEND_MESSAGE;
+            comm_state = SEND_MESSAGE;
             ++clr_screen;
         }
     }
@@ -92,17 +94,17 @@ int32_t touch_callback(uint32_t message, int32_t x, int32_t y) {
 /* Interrupt handler for the T15 "message received" timer */
 void msg_received_timeout_handler() {
     TimerIntClear(TIMER0_BASE, TIMER_TIMA_TIMEOUT);
-    current_comm_state = MESSAGE_RECEIVED;
+    comm_state = MESSAGE_RECEIVED;
 }
 
 /* Interrupt handler for the "send_message" timer */
 void send_message_timeout_handler() {
     TimerIntClear(TIMER1_BASE, TIMER_TIMA_TIMEOUT);
-    if (current_comm_context != DEVICE_LOOKUP && current_comm_state == WAIT_TO_RECEIVE) {
+    if (comm_context != DEVICE_LOOKUP && comm_state == WAIT_TO_RECEIVE) {
         ++comm_error_counter;
     }
-    current_comm_state = SEND_MESSAGE;
-    if (current_comm_context == DEVICE_LOOKUP) {
+    comm_state = SEND_MESSAGE;
+    if (comm_context == DEVICE_LOOKUP) {
         if (lookup_sensor.addr >= 247) {
             lookup_sensor.addr = 0;
         }
@@ -204,10 +206,10 @@ int main(void) {
 
     while (1) {
         /* Communication error handling */
-        if (comm_error_counter >= 10 && current_gui_context != ERROR_GUI) {
+        if (comm_error_counter >= 10 && gui_context != ERROR_GUI) {
             TimerDisable(TIMER1_BASE, TIMER_A);
-            current_gui_context = ERROR_GUI;
-            current_comm_state = WAIT_TO_SEND;
+            gui_context = ERROR_GUI;
+            comm_state = WAIT_TO_SEND;
             ++clr_screen;
         }
         /* Updating GUI if necessary */
@@ -216,22 +218,22 @@ int main(void) {
             update_gui = false;
         }
         /* Communication control flow */
-        switch (current_comm_state) {
+        switch (comm_state) {
         case SEND_MESSAGE:
             send_request();
             /*
              * The GUI is updated only in the device lookup context to draw
              * the currently probed address onto the display.
              */
-            if (current_comm_context == DEVICE_LOOKUP) {
+            if (comm_context == DEVICE_LOOKUP) {
                 update_gui = true;
             }
-            current_comm_state = WAIT_TO_RECEIVE;
+            comm_state = WAIT_TO_RECEIVE;
             break;
         case MESSAGE_RECEIVED:
             if (process_response(&ch_data, &old_par_cnts)) {
                 ++comm_error_counter;
-                current_comm_state = WAIT_TO_SEND;
+                comm_state = WAIT_TO_SEND;
                 break;
             }
             /*
@@ -239,7 +241,7 @@ int main(void) {
              * disabled here, because the actions following the "device found"
              * depend on the user's input.
              */
-            if (current_comm_context == DEVICE_LOOKUP) {
+            if (comm_context == DEVICE_LOOKUP) {
                 TimerDisable(TIMER1_BASE, TIMER_A);
                 update_found_device_lookup_gui(&lookup_sensor);
                 /*
@@ -257,14 +259,14 @@ int main(void) {
                  * "knowing" what it is would cause an incorrect unit to be displayed.
                  */
             } else if (ch_pars_need_refresh(&ch_data)) {
-                current_comm_context = FETCH_CH_PARS;
-                current_comm_state = SEND_MESSAGE;
+                comm_context = FETCH_CH_PARS;
+                comm_state = SEND_MESSAGE;
                 break;
             } else {
-                current_comm_context = FETCH_CH_VALUES;
+                comm_context = FETCH_CH_VALUES;
                 update_gui = true;
             }
-            current_comm_state = WAIT_TO_SEND;
+            comm_state = WAIT_TO_SEND;
             break;
         }
     }

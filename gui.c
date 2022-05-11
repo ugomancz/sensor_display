@@ -15,13 +15,15 @@ extern const Graphics_Display_Functions Kentec_fxns;
 extern Graphics_Display Kentec_GD;
 extern Graphics_Context g_context;
 
-volatile gui_context current_gui_context = DEVICE_LOOKUP_GUI;
+volatile _gui_context gui_context = DEVICE_LOOKUP_GUI;
 typedef struct {
     float dose_rate;
     float dose;
     float temp;
 } old_ch_values;
 
+volatile uint8_t clr_screen = 1;
+volatile bool update_gui = true;
 static old_ch_values last_values = { 0 };
 
 /* "Menu" button in top right corner */
@@ -285,7 +287,7 @@ void gui_update(volatile uint8_t *clr_screen, channels_data *ch_data, sensor_inf
         lookup_reject_button.active = false;
         to_menu_button.active = false;
     }
-    switch (current_gui_context) {
+    switch (gui_context) {
     case DEVICE_LOOKUP_GUI:
         if (*clr_screen > 0) {
             init_device_lookup_gui(lookup_sensor);
