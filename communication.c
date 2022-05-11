@@ -1,8 +1,9 @@
 /*
  * communication.c
  *
- *  Created on: 26 Jan 2022
- *      Author: ondra
+ * This file contains implementation of the communication functionality.
+ *
+ * Author: Ondrej Kostik
  */
 #include "communication.h"
 #include "modbus.h"
@@ -17,6 +18,7 @@ volatile _comm_state comm_state = SEND_MESSAGE;
 
 volatile uint8_t comm_error_counter = 0;
 
+/* RX and TX buffers serve as a bridge between the ModBus library and the UART communication. */
 uint8_t *tx_buffer;
 uint8_t *rx_buffer;
 volatile uint8_t tx_buffer_pos = 0;

@@ -1,5 +1,8 @@
 /*
- * application.c
+ * application.h
+ *
+ * This file contains configuration preprocessor definitions and structure
+ * declarations used throughout the project.
  *
  * Author: Ondrej Kostik
  */

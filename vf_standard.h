@@ -1,5 +1,9 @@
 /*
- * mdg04.h
+ * vf_standard.h
+ *
+ * This file contains preprocessor definitions and declarations of structures
+ * used by VF, a.s. in its devices as well as functions that help with working
+ * with some of their attributes.
  *
  * Author: Ondrej Kostik
  */

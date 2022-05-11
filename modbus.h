@@ -1,10 +1,11 @@
 /*
  * modbus.h
  *
- *  Created on: 29 Apr 2022
- *      Author: ondra
+ * This file contains preprocessor definitions of return codes and declares
+ * the Modbus functions interface.
+ *
+ * Author: Ondrej Kostik
  */
-
 #ifndef MODBUS_H_
 #define MODBUS_H_
 
@@ -18,6 +19,7 @@
 #define INVALID_DEV_ADDR -5
 #define WRITE_FAILED -6
 
+/* This enum defines numerical values of function codes */
 typedef enum {
     READ_IN_REGS = 0x04,
     WRITE_SINGLE_REG = 0x06

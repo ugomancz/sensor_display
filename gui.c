@@ -1,8 +1,9 @@
 /*
  * gui.c
  *
- *  Created on: 1 May 2022
- *      Author: ondra
+ * This file contains implementation of the GUI functionality.
+ *
+ * Author: Ondrej Kostik
  */
 #include "gui.h"
 #include "vf_standard.h"

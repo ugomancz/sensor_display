@@ -1,8 +1,9 @@
 /*
  * modbus.c
  *
- *  Created on: 29 Apr 2022
- *      Author: ondra
+ * This file contains the implementation of the Modbus functionality.
+ *
+ * Author: Ondrej Kostik
  */
 #include "modbus.h"
 #include "crc.h"

@@ -1,10 +1,11 @@
 /*
  * gui.h
  *
- *  Created on: 1 May 2022
- *      Author: ondra
+ * This file contains declarations of variables and functions used
+ * to control the GUI.
+ *
+ * Author: Ondrej Kostik
  */
-
 #ifndef GUI_H_
 #define GUI_H_
 

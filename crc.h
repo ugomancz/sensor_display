@@ -1,9 +1,9 @@
 /*
  * crc.h
  *
- * Taken from VF Standard Q-7P1-06 document by VF, a.s.
+ * CRC implementation taken from VF Standard Q-7P1-06 document by VF, a.s.
+ *
  */
-
 #ifndef CRC_H_
 #define CRC_H_
 

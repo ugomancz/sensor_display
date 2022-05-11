@@ -1,8 +1,11 @@
 /*
  * communication.h
  *
- *  Created on: 26 Jan 2022
- *      Author: ondra
+ * This file contains declarations of variables representing the state
+ * of the communication and functions used to interact with the communication
+ * functionality.
+ *
+ * Author: Ondrej Kostik
  */
 #ifndef COMMUNICATION_H_
 #define COMMUNICATION_H_
@@ -36,10 +39,8 @@ extern volatile _comm_context comm_context;
 /* Tracks the current state of communication */
 extern volatile _comm_state comm_state;
 
-/* RX and TX buffers serve as a bridge between the ModBus library and the UART communication. */
-extern uint8_t *tx_buffer;
+/* RX buffer serve as a bridge between the ModBus library and the UART communication. */
 extern uint8_t *rx_buffer;
-extern volatile uint8_t tx_buffer_pos;
 extern volatile uint8_t rx_buffer_pos;
 
 /* Sets the direction of communication on the serial line */
