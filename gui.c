@@ -16,7 +16,7 @@ extern const Graphics_Display_Functions Kentec_fxns;
 extern Graphics_Display Kentec_GD;
 extern Graphics_Context g_context;
 
-volatile _gui_context gui_context = DEVICE_LOOKUP_GUI;
+volatile _gui_context gui_context = SENSOR_LOOKUP_GUI;
 typedef struct {
     float dose_rate;
     float dose;
@@ -37,7 +37,7 @@ button to_menu_button = {
         .active = false
 };
 
-/* "Yes" button within DEVICE_LOOKUP_GUI context */
+/* "Yes" button within SENSOR_LOOKUP_GUI context */
 button lookup_accept_button = {
         .coords = { .xMin = 50, .yMin = 180, .xMax = 150, .yMax = 220 },
         .button_color = GRAPHICS_COLOR_LIGHT_GRAY,
@@ -47,7 +47,7 @@ button lookup_accept_button = {
         .active = false
 };
 
-/* "No" button within DEVICE_LOOKUP_GUI context */
+/* "No" button within SENSOR_LOOKUP_GUI context */
 button lookup_reject_button = {
         .coords = { .xMin = 170, .yMin = 180, .xMax = 270, .yMax = 220 },
         .button_color = GRAPHICS_COLOR_LIGHT_GRAY,
@@ -67,13 +67,13 @@ button to_values_button = {
         .active = false
 };
 
-/* "Find Device" button within MENU_GUI context */
+/* "Sensor lookup" button within MENU_GUI context */
 button to_lookup_button = {
         .coords = { .xMin = 165, .yMin = 180, .xMax = 310, .yMax = 230 },
         .button_color = GRAPHICS_COLOR_LIGHT_GRAY,
         .text_color = GRAPHICS_COLOR_BLACK,
         .font = &g_sFontCm18b,
-        .text = "Device lookup",
+        .text = "Sensor lookup",
         .active = false
 };
 
@@ -88,12 +88,12 @@ static void draw_button(button *b) {
             (b->coords.yMax + b->coords.yMin) / 2, false);
 }
 
-static void init_device_lookup_gui(sensor_info *lookup_sensor) {
+static void init_sensor_lookup_gui(sensor_info *lookup_sensor) {
     char string_buffer[10] = { 0 };
     Graphics_setFont(&g_context, &g_sFontCm24b);
     Graphics_setForegroundColor(&g_context, GRAPHICS_COLOR_WHITE);
 
-    Graphics_drawString(&g_context, "Device lookup", -1, 10, 9, false);
+    Graphics_drawString(&g_context, "Sensor lookup", -1, 10, 9, false);
     Graphics_drawLineH(&g_context, 1, 320, 40);
 
     Graphics_setFont(&g_context, &g_sFontCm22b);
@@ -105,11 +105,11 @@ static void init_device_lookup_gui(sensor_info *lookup_sensor) {
     draw_button(&to_menu_button);
 }
 
-void update_found_device_lookup_gui(sensor_info *lookup_sensor) {
+void update_found_sensor_lookup_gui(sensor_info *lookup_sensor) {
     char string_buffer[25] = { 0 };
     Graphics_setForegroundColor(&g_context, GRAPHICS_COLOR_WHITE);
     Graphics_setFont(&g_context, &g_sFontCm22b);
-    Graphics_drawStringCentered(&g_context, "Device found!", -1, 160, 98, false);
+    Graphics_drawStringCentered(&g_context, "Sensor found!", -1, 160, 98, false);
 
     Graphics_setFont(&g_context, &g_sFontCm20);
 
@@ -125,7 +125,7 @@ void update_found_device_lookup_gui(sensor_info *lookup_sensor) {
     draw_button(&lookup_reject_button);
 }
 
-static void update_device_lookup_gui(sensor_info *lookup_sensor) {
+static void update_sensor_lookup_gui(sensor_info *lookup_sensor) {
     const Graphics_Rectangle hide_address = { .xMin = 200, .yMin = 55, .xMax = 285, .yMax = 80 };
     const Graphics_Rectangle hide_found = { .xMin = 0, .yMin = 85, .xMax = 319, .yMax = 239 };
     char string_buffer[10] = { 0 };
@@ -289,11 +289,11 @@ void gui_update(volatile uint8_t *clr_screen, channels_data *ch_data, sensor_inf
         to_menu_button.active = false;
     }
     switch (gui_context) {
-    case DEVICE_LOOKUP_GUI:
+    case SENSOR_LOOKUP_GUI:
         if (*clr_screen > 0) {
-            init_device_lookup_gui(lookup_sensor);
+            init_sensor_lookup_gui(lookup_sensor);
         } else {
-            update_device_lookup_gui(lookup_sensor);
+            update_sensor_lookup_gui(lookup_sensor);
         }
         break;
     case MENU_GUI:

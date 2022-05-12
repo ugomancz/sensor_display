@@ -26,11 +26,11 @@ typedef enum {
 } fn_code;
 
 /*
- * This function takes device address, register read start address and number of registers to be read.
+ * This function takes target address, register read start address and number of registers to be read.
  * It then generates a ModBus-RTU ADU with "Read Input Registers" request and stores it in the output_dest.
  * After function is finished, *output_pos contains number of bytes written to output_dest.
  */
-void mb_gen_read_input_regs(uint8_t device_addr, uint16_t reg_addr_start, uint16_t regs_count, uint8_t *output_dest,
+void mb_gen_read_input_regs(uint8_t target_addr, uint16_t reg_addr_start, uint16_t regs_count, uint8_t *output_dest,
         volatile uint8_t *output_pos);
 
 /*
@@ -41,11 +41,11 @@ void mb_gen_read_input_regs(uint8_t device_addr, uint16_t reg_addr_start, uint16
 int mb_decode_read_input_regs(uint8_t *data, uint8_t data_length, void *output_dest);
 
 /*
- * This function takes device address, register read start address and number of registers to be read.
+ * This function takes target address, register read start address and number of registers to be read.
  * It then generates a ModBus-RTU ADU with "Read Input Registers" request and stores it in the output_dest.
  * After function is finished, *output_pos contains number of bytes written to output_dest.
  */
-void mb_gen_write_single_reg(uint8_t device_addr, uint16_t reg_addr, uint16_t reg_value, uint8_t *output_dest,
+void mb_gen_write_single_reg(uint8_t target_addr, uint16_t reg_addr, uint16_t reg_value, uint8_t *output_dest,
         volatile uint8_t *output_pos);
 
 /*

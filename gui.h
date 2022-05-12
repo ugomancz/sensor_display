@@ -28,7 +28,7 @@ typedef struct {
 
 /* Represents the current GUI context (i.e. currently displayed screen) */
 typedef enum {
-    DEVICE_LOOKUP_GUI, MENU_GUI, VALUES_GUI, ERROR_GUI
+    SENSOR_LOOKUP_GUI, MENU_GUI, VALUES_GUI, ERROR_GUI
 } _gui_context;
 
 /* Structures used by the display driver */
@@ -39,16 +39,16 @@ Graphics_Context g_context;
 /* "Menu" button in top right corner */
 extern button to_menu_button;
 
-/* "Yes" button within DEVICE_LOOKUP_GUI context */
+/* "Yes" button within SENSOR_LOOKUP_GUI context */
 extern button lookup_accept_button;
 
-/* "No" button within DEVICE_LOOKUP_GUI context */
+/* "No" button within SENSOR_LOOKUP_GUI context */
 extern button lookup_reject_button;
 
 /* "Measurements" button within MENU_GUI context */
 extern button to_values_button;
 
-/* "Find Device" button within MENU_GUI context */
+/* "Find Sensor" button within MENU_GUI context */
 extern button to_lookup_button;
 
 /* Tracks the current GUI context (i.e. currently displayed screen) */
@@ -66,7 +66,7 @@ extern volatile bool update_gui;
 void gui_update(volatile uint8_t *clr_screen, channels_data *ch_data, sensor_info *current_sensor,
         sensor_info *lookup_sensor);
 
-/* Draws information about found device and buttons for user interaction (use/don't use choice) */
-void update_found_device_lookup_gui();
+/* Draws information about found sensor and buttons for user interaction (use/don't use choice) */
+void update_found_sensor_lookup_gui();
 
 #endif /* GUI_H_ */

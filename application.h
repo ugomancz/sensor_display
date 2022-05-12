@@ -25,8 +25,8 @@
 /* Delay between fetching new channel data from the sensor in CPU cycles. */
 #define FETCH_CH_VALUES_MSG_DELAY FREQ
 
-/* Delay between probing addresses in device lookup context in CPU cycles. */
-#define DEVICE_LOOKUP_MSG_DELAY FREQ/4
+/* Delay between probing addresses in sensor lookup context in CPU cycles. */
+#define SENSOR_LOOKUP_MSG_DELAY FREQ/4
 
 /* Timeout value for the "request timeout" timer in CPU cycles. */
 #define REQ_TIMEOUT_DELAY FREQ

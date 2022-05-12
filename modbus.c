@@ -11,7 +11,7 @@
 
 #define BYTE_WIDTH 8
 fn_code last_fn_used;
-int16_t last_dev_addr = -1;
+int16_t last_target_addr = -1;
 
 static void switch_register_endianity(uint8_t *data, const unsigned int bytes) {
     uint8_t temp;
@@ -22,9 +22,9 @@ static void switch_register_endianity(uint8_t *data, const unsigned int bytes) {
     }
 }
 
-void mb_gen_read_input_regs(uint8_t device_addr, uint16_t reg_addr_start, uint16_t regs_count, uint8_t *output_dest,
+void mb_gen_read_input_regs(uint8_t target_addr, uint16_t reg_addr_start, uint16_t regs_count, uint8_t *output_dest,
         volatile uint8_t *output_pos) {
-    output_dest[(*output_pos)++] = device_addr;
+    output_dest[(*output_pos)++] = target_addr;
     output_dest[(*output_pos)++] = (uint8_t) READ_IN_REGS;
     output_dest[(*output_pos)++] = (uint8_t) (reg_addr_start >> BYTE_WIDTH);
     output_dest[(*output_pos)++] = (uint8_t) reg_addr_start;
@@ -37,11 +37,11 @@ void mb_gen_read_input_regs(uint8_t device_addr, uint16_t reg_addr_start, uint16
     output_dest[(*output_pos)++] = (uint8_t) (crc >> BYTE_WIDTH);
 
     last_fn_used = READ_IN_REGS;
-    last_dev_addr = device_addr;
+    last_target_addr = target_addr;
 }
 
 int mb_decode_read_input_regs(uint8_t *data, uint8_t data_length, void *output_dest) {
-    if (data[0] != last_dev_addr) {
+    if (data[0] != last_target_addr) {
         return INVALID_DEV_ADDR;
     }
     if (data[1] != last_fn_used) {
@@ -52,14 +52,14 @@ int mb_decode_read_input_regs(uint8_t *data, uint8_t data_length, void *output_d
         return INVALID_FN_CODE;
     }
     /*
-     * Subtracting 5 because device address, function code, data length
-     * byte and crc bytes don't count.
+     * Subtracting 5 because the target address, function code, data length
+     * byte and CRC bytes don't count.
      */
     if (data[2] != data_length - 5) {
         return INCOMPLETE_DATA;
     }
     uint16_t message_crc = ((int16_t) data[data_length - 1] << 8) | data[data_length - 2];
-    /* Subtracting 2 to strip the existing crc bytes. */
+    /* Subtracting 2 to strip the existing CRC bytes. */
     if (message_crc != get_crc(data, data_length - 2)) {
         return CRC_ERROR;
     }
@@ -70,9 +70,9 @@ int mb_decode_read_input_regs(uint8_t *data, uint8_t data_length, void *output_d
     return SUCCESS;
 }
 
-void mb_gen_write_single_reg(uint8_t device_addr, uint16_t reg_addr, uint16_t reg_value, uint8_t *output_dest,
+void mb_gen_write_single_reg(uint8_t target_addr, uint16_t reg_addr, uint16_t reg_value, uint8_t *output_dest,
         volatile uint8_t *output_pos) {
-    output_dest[(*output_pos)++] = device_addr;
+    output_dest[(*output_pos)++] = target_addr;
     output_dest[(*output_pos)++] = (uint8_t) WRITE_SINGLE_REG;
     output_dest[(*output_pos)++] = (uint8_t) (reg_addr >> BYTE_WIDTH);
     output_dest[(*output_pos)++] = (uint8_t) reg_addr;
@@ -85,11 +85,11 @@ void mb_gen_write_single_reg(uint8_t device_addr, uint16_t reg_addr, uint16_t re
     output_dest[(*output_pos)++] = (uint8_t) (crc >> BYTE_WIDTH);
 
     last_fn_used = WRITE_SINGLE_REG;
-    last_dev_addr = device_addr;
+    last_target_addr = target_addr;
 }
 
 int mb_decode_write_single_reg(uint8_t *data, uint8_t data_length, void *output_dest) {
-    if (data[0] != last_dev_addr) {
+    if (data[0] != last_target_addr) {
         return INVALID_DEV_ADDR;
     }
     if (data[1] != last_fn_used) {
@@ -100,7 +100,7 @@ int mb_decode_write_single_reg(uint8_t *data, uint8_t data_length, void *output_
         return INVALID_FN_CODE;
     }
     uint16_t message_crc = ((int16_t) data[data_length - 1] << 8) | data[data_length - 2];
-    /* Subtracting 2 to strip the existing crc bytes. */
+    /* Subtracting 2 to strip the existing CRC bytes. */
     if (message_crc != get_crc(data, data_length - 2)) {
         return CRC_ERROR;
     }

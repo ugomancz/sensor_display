@@ -80,9 +80,9 @@ int32_t touch_callback(uint32_t message, int32_t x, int32_t y) {
             gui_context = VALUES_GUI;
             ++clr_screen;
         } else if (to_lookup_button.active && button_was_pressed(&to_lookup_button, x, y)) {
-            gui_context = DEVICE_LOOKUP_GUI;
-            comm_context = DEVICE_LOOKUP;
-            TimerLoadSet(TIMER1_BASE, TIMER_A, DEVICE_LOOKUP_MSG_DELAY);
+            gui_context = SENSOR_LOOKUP_GUI;
+            comm_context = SENSOR_LOOKUP;
+            TimerLoadSet(TIMER1_BASE, TIMER_A, SENSOR_LOOKUP_MSG_DELAY);
             lookup_sensor.addr = 0x01;
             comm_state = SEND_MESSAGE;
             ++clr_screen;
@@ -100,11 +100,11 @@ void msg_received_timeout_handler() {
 /* Interrupt handler for the "send_message" timer */
 void send_message_timeout_handler() {
     TimerIntClear(TIMER1_BASE, TIMER_TIMA_TIMEOUT);
-    if (comm_context != DEVICE_LOOKUP && comm_state == WAIT_TO_RECEIVE) {
+    if (comm_context != SENSOR_LOOKUP && comm_state == WAIT_TO_RECEIVE) {
         ++comm_error_counter;
     }
     comm_state = SEND_MESSAGE;
-    if (comm_context == DEVICE_LOOKUP) {
+    if (comm_context == SENSOR_LOOKUP) {
         if (lookup_sensor.addr >= 247) {
             lookup_sensor.addr = 0;
         }
@@ -128,7 +128,7 @@ static bool ch_pars_need_refresh(channels_data *ch_data) {
 /*
  * The entry point to the application.
  * Initialises all the required peripherals and begins execution with the
- * device lookup context. An infinite loop then handles the communication
+ * sensor lookup context. An infinite loop then handles the communication
  * with the target sensor and GUI events.
  */
 int main(void) {
@@ -183,10 +183,10 @@ int main(void) {
     TimerConfigure(TIMER1_BASE, TIMER_CFG_PERIODIC);
     TimerIntRegister(TIMER1_BASE, TIMER_A, send_message_timeout_handler);
     /*
-     * Initialising with the DEVICE_LOOKUP_MSG_DELAY value because the first
-     * context in which the device is after boot is the Device Lookup.
+     * Initialising with the SENSOR_LOOKUP_MSG_DELAY value because the first
+     * context in which the sensor is after boot is the Sensor Lookup.
      */
-    TimerLoadSet(TIMER1_BASE, TIMER_A, DEVICE_LOOKUP_MSG_DELAY);
+    TimerLoadSet(TIMER1_BASE, TIMER_A, SENSOR_LOOKUP_MSG_DELAY);
     IntEnable(INT_TIMER1A);
     TimerIntEnable(TIMER1_BASE, TIMER_TIMA_TIMEOUT);
 
@@ -222,10 +222,10 @@ int main(void) {
         case SEND_MESSAGE:
             send_request();
             /*
-             * The GUI is updated only in the device lookup context to draw
+             * The GUI is updated only in the sensor lookup context to draw
              * the currently probed address onto the display.
              */
-            if (comm_context == DEVICE_LOOKUP) {
+            if (comm_context == SENSOR_LOOKUP) {
                 update_gui = true;
             }
             comm_state = WAIT_TO_RECEIVE;
@@ -237,13 +237,13 @@ int main(void) {
                 break;
             }
             /*
-             * In the device lookup context, the "send message" timer gets
-             * disabled here, because the actions following the "device found"
+             * In the sensor lookup context, the "send message" timer gets
+             * disabled here, because the actions following the "sensor found"
              * depend on the user's input.
              */
-            if (comm_context == DEVICE_LOOKUP) {
+            if (comm_context == SENSOR_LOOKUP) {
                 TimerDisable(TIMER1_BASE, TIMER_A);
-                update_found_device_lookup_gui(&lookup_sensor);
+                update_found_sensor_lookup_gui(&lookup_sensor);
                 /*
                  * If the par_cnt members of fetched channel values changed
                  * compared to the last received data, the next requested data
