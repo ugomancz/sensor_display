@@ -83,8 +83,7 @@ int32_t touch_callback(uint32_t message, int32_t x, int32_t y) {
             gui_context = SENSOR_LOOKUP_GUI;
             comm_context = SENSOR_LOOKUP;
             TimerLoadSet(TIMER1_BASE, TIMER_A, SENSOR_LOOKUP_MSG_DELAY);
-            lookup_sensor.addr = 0x01;
-            comm_state = SEND_MESSAGE;
+            lookup_sensor.addr = 0x00;
             ++clr_screen;
         }
     }
