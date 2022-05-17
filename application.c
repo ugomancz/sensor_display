@@ -76,8 +76,8 @@ int32_t touch_callback(uint32_t message, int32_t x, int32_t y) {
             lookup_reject_button.active = false;
             TimerEnable(TIMER1_BASE, TIMER_A);
             update_gui = true;
-        } else if (to_values_button.active && button_was_pressed(&to_values_button, x, y)) {
-            gui_context = VALUES_GUI;
+        } else if (to_measurements_button.active && button_was_pressed(&to_measurements_button, x, y)) {
+            gui_context = MEASUREMENTS_GUI;
             ++clr_screen;
         } else if (to_lookup_button.active && button_was_pressed(&to_lookup_button, x, y)) {
             gui_context = SENSOR_LOOKUP_GUI;

@@ -28,7 +28,7 @@ typedef struct {
 
 /* Represents the current GUI context (i.e. currently displayed screen) */
 typedef enum {
-    SENSOR_LOOKUP_GUI, MENU_GUI, VALUES_GUI, ERROR_GUI
+    SENSOR_LOOKUP_GUI, MENU_GUI, MEASUREMENTS_GUI, ERROR_GUI
 } _gui_context;
 
 /* Structures used by the display driver */
@@ -46,7 +46,7 @@ extern button lookup_accept_button;
 extern button lookup_reject_button;
 
 /* "Measurements" button within MENU_GUI context */
-extern button to_values_button;
+extern button to_measurements_button;
 
 /* "Find Sensor" button within MENU_GUI context */
 extern button to_lookup_button;

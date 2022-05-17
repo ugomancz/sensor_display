@@ -58,7 +58,7 @@ button lookup_reject_button = {
 };
 
 /* "Measurements" button within MENU_GUI context */
-button to_values_button = {
+button to_measurements_button = {
         .coords = { .xMin = 10, .yMin = 180, .xMax = 155, .yMax = 230 },
         .button_color = GRAPHICS_COLOR_LIGHT_GRAY,
         .text_color = GRAPHICS_COLOR_BLACK,
@@ -180,7 +180,7 @@ static void init_menu_gui(channels_data *ch_data, sensor_info *current_sensor) {
     Graphics_drawString(&g_context, (int8_t*) string_buffer, -1, 10, 150, false);
     last_values.temp = ch_data->temp_val.val;
 
-    draw_button(&to_values_button);
+    draw_button(&to_measurements_button);
     draw_button(&to_lookup_button);
 }
 
@@ -202,7 +202,7 @@ static void update_menu_gui(channels_data *ch_data, sensor_info *current_sensor)
     }
 }
 
-static void init_values_gui(channels_data *ch_data) {
+static void init_measurements_gui(channels_data *ch_data) {
     char string_buffer[20] = { 0 };
     Graphics_setForegroundColor(&g_context, GRAPHICS_COLOR_WHITE);
     Graphics_setFont(&g_context, &g_sFontCm24b);
@@ -231,7 +231,7 @@ static void init_values_gui(channels_data *ch_data) {
     last_values.dose = ch_data->dose_val.val;
 }
 
-static void update_values_gui(channels_data *ch_data) {
+static void update_measurements_gui(channels_data *ch_data) {
     char string_buffer[20] = { 0 };
     if (last_values.dose_rate != ch_data->dose_rate_val.val) {
         const Graphics_Rectangle hide_dose_rate = { .xMin = 10, .yMin = 75, .xMax = 210, .yMax = 130 };
@@ -282,7 +282,7 @@ void gui_update(volatile uint8_t *clr_screen, channels_data *ch_data, sensor_inf
         sensor_info *lookup_sensor) {
     if (*clr_screen > 0) {
         Graphics_clearDisplay(&g_context);
-        to_values_button.active = false;
+        to_measurements_button.active = false;
         to_lookup_button.active = false;
         lookup_accept_button.active = false;
         lookup_reject_button.active = false;
@@ -303,11 +303,11 @@ void gui_update(volatile uint8_t *clr_screen, channels_data *ch_data, sensor_inf
             update_menu_gui(ch_data, current_sensor);
         }
         break;
-    case VALUES_GUI:
+    case MEASUREMENTS_GUI:
         if (*clr_screen > 0) {
-            init_values_gui(ch_data);
+            init_measurements_gui(ch_data);
         } else {
-            update_values_gui(ch_data);
+            update_measurements_gui(ch_data);
         }
         break;
     case ERROR_GUI:
