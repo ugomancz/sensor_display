@@ -15,6 +15,7 @@
 
 volatile _comm_context comm_context = SENSOR_LOOKUP;
 volatile _comm_state comm_state = SEND_MESSAGE;
+static _comm_context last_message_context = SENSOR_LOOKUP;
 
 volatile uint8_t comm_error_counter = 0;
 
@@ -75,11 +76,16 @@ void send_request() {
         mb_gen_write_single_reg(current_sensor.addr, FAST_D_CMD_REG, CMD_RESET, tx_buffer, &tx_buffer_pos);
         break;
     }
+    last_message_context = comm_context;
     uart_send();
     reset_tx_buffer();
 }
 
 int process_response(channels_data *ch_data, par_cnts *old_par_cnts) {
+    if (last_message_context != comm_context) {
+        reset_rx_buffer();
+        return -1;
+    }
     int retval;
     switch (comm_context) {
     case SENSOR_LOOKUP:
@@ -104,11 +110,9 @@ int process_response(channels_data *ch_data, par_cnts *old_par_cnts) {
         }
         break;
     }
-    if (retval == SUCCESS) {
-        reset_rx_buffer();
-        if (comm_error_counter > 0) {
-            --comm_error_counter;
-        }
+    if (comm_error_counter > 0 && retval == SUCCESS) {
+        --comm_error_counter;
     }
+    reset_rx_buffer();
     return retval;
 }
