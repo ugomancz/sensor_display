@@ -15,6 +15,11 @@
 
 volatile _comm_context comm_context = SENSOR_LOOKUP;
 volatile _comm_state comm_state = SEND_MESSAGE;
+/*
+ * Keeps track of the context in which the last message was sent.
+ * This is used to prevent errors in incoming message parsing right after
+ * switch to and from sensor lookup.
+ */
 static _comm_context last_message_context = SENSOR_LOOKUP;
 
 volatile uint8_t comm_error_counter = 0;
